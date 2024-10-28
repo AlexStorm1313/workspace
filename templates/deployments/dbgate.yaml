@@ -43,6 +43,32 @@ spec:
             - name: {{ .Release.Name }}-dbgate-dbgate
               mountPath: /home/dbgate-docker/.dbgate
               subPath: .dbgate
+          # Example configuration for adding database sources
+          # env:
+          #   - name: CONNECTIONS
+          #     value: database,cache
+
+          #   - name: LABEL_database
+          #     value: example-database
+          #   - name: SERVER_database
+          #     value: example-database-pod
+          #   - name: PORT_database
+          #     value: 5432
+          #   - name: USER_database
+          #     value: example
+          #   - name: PASSWORD_database
+          #     value: example
+          #   - name: DATABASE_database
+          #     value: example
+          #   - name: ENGINE_database
+          #     value: postgres@dbgate-plugin-postgres
+
+          #   - name: LABEL_cache
+          #     value: example-cache
+          #   - name: SERVER_cache
+          #     value: example-cache-pod
+          #   - name: ENGINE_cache
+          #     value: redis@dbgate-plugin-redis
       volumes:       
         - name: {{ .Release.Name }}-dbgate-dbgate
           persistentVolumeClaim:
