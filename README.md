@@ -1,129 +1,113 @@
-# Development Environment Setup
+# Project Deployment Guide
 
-This repository contains a Makefile for managing a development environment that runs on both Podman locally and OKD (OpenShift Origin Community Distribution) in production. The environment consists of multiple containerized services including a workspace, Ollama, database, and proxy components.
+This project uses a Makefile to automate container building, deployment, and management using Podman and Helm. It supports both local development using Podman and deployment to OKD/OpenShift clusters.
 
 ## Prerequisites
 
-Before using this Makefile, ensure you have the following:
-
-- Podman installed
-- Access to an OKD cluster (for production deployment)
-- Helm
-- The following configuration files:
-  - Kubernetes config (`~/.kube/config`)
-  - OKD login token
-  - WakaTime config (optional)
+- [Podman](https://podman.io/) installed for container management
+- [Helm](https://helm.sh/) for Kubernetes package management
+- Access to an OKD/OpenShift cluster (for cluster deployment)
 
 ## Environment Variables
 
-The Makefile uses several configurable paths and variables:
+Before using the Makefile, set the following environment variables as needed:
 
-```makefile
-NAMESPACE=workspace
-KUBECONFIG_PATH=~/.kube/config
-OKD_LOGIN_TOKEN=sha256~Wply36AX2gRsZltbfB91u0WtgvUBaWG20Jn08NfvGLs
-OKD_REGISTERY_URL=default-route-openshift-image-registry.apps.sno.okd/pdfusion
-```
+- `NAMESPACE`: Workspace namespace (default: workspace)
+- `OKD_LOGIN_TOKEN`: Authentication token for OKD/OpenShift registry
+- `OKD_REGISTERY_URL`: URL of the OKD/OpenShift registry
+- `KUBECONFIG_PATH`: Path to your Kubernetes configuration file
 
 ## Available Commands
 
-### Local Development
+### Local Development Commands
 
-- `make build`: Builds locally defined container images using Podman
+- `make build`
+  - Builds local containers using Podman
+  - Note: Container build commands are commented out in the Makefile and need to be customized
 
-- `make kube`: Generates Kubernetes manifests using Helm
-  - Creates a `kube.yaml` file with all resource definitions
+- `make kube`
+  - Generates Kubernetes deployment files from Helm charts
+  - Creates `kube.yaml` using values from `values.yaml` and `values.podman.yaml`
 
-- `make play`: Deploys the environment locally using Podman Kube
+- `make play`
+  - Deploys the application locally using Podman
   - Uses the generated `kube.yaml` file
 
-- `make down`: Tears down the local environment
-  - Forcefully removes all deployed resources
+- `make down`
+  - Stops the local deployment
+  - Forcefully removes all resources defined in `kube.yaml`
 
-- `make workspace`: Convenience command that runs build, kube, and play in sequence
-  - Complete local environment setup
+- `make workspace`
+  - Convenience command that runs `build`, `kube`, and `play` in sequence
+  - Complete local development setup in one command
 
-### Production Deployment
+### OKD/OpenShift Cluster Commands
 
-- `make push`: Builds and pushes images to the OKD registry
-  - Logs in to the registry using the configured token
-  - Pushes workspace and database images
+- `make push`
+  - Builds containers locally
+  - Logs into the OKD/OpenShift registry
+  - Pushes containers to the registry
+  - Note: Push commands are commented out and need to be customized
 
-- `make install`: Installs the environment in OKD using Helm
-  - Uses values.yaml and values.okd.yaml for configuration
-  - Automatically pushes images
+- `make install`
+  - Installs the Helm chart on the OKD/OpenShift cluster
+  - Uses values from `values.yaml` and `values.okd.yaml`
+  - Automatically pushes containers to the registry
 
-- `make upgrade`: Updates an existing installation
-  - Pushes new images
-  - Upgrades the Helm release
+- `make upgrade`
+  - Pushes updated containers to the registry
+  - Upgrades the existing Helm chart deployment
+  - Uses values from `values.yaml` and `values.okd.yaml`
 
-- `make uninstall`: Removes the environment from OKD
-  - Uninstalls the Helm release
+- `make uninstall`
+  - Removes the Helm chart deployment from the cluster
 
-### Utilities
+### Utility Commands
 
-- `make cert`: Extracts the root certificate from the proxy container
-  - Copies it to the local directory
+- `make cert`
+  - Copies the SSL certificate from the proxy container
+  - Extracts from `/etc/nginx/certificates/certificate.crt`
+  - Saves to the local directory
 
-## Directory Structure
+## Configuration Files
 
-The project expects the following directory structure:
+The project expects the following configuration files:
 
-```
-.
-├── containers/
-│   ├── workspace/
-│   ├── ollama/
-│   ├── database/
-│   └── proxy/
-├── values.yaml
-├── values.podman.yaml
-├── values.okd.yaml
-└── Makefile
-```
+- `values.yaml`: Base Helm values
+- `values.podman.yaml`: Podman-specific configuration values
+- `values.okd.yaml`: OKD/OpenShift-specific configuration values
 
 ## Usage Examples
 
-1. To set up a local development environment:
+1. Local development workflow:
 ```bash
+# Start the complete local environment
 make workspace
-```
 
-2. To deploy to OKD:
-```bash
-make install
-```
-
-3. To update the production environment:
-```bash
-make upgrade
-```
-
-4. To tear down the local environment:
-```bash
+# When finished, tear down the environment
 make down
+```
+
+2. Cluster deployment workflow:
+```bash
+# Initial deployment to OKD/OpenShift
+make install
+
+# Update existing deployment
+make upgrade
+
+# Remove deployment
+make uninstall
 ```
 
 ## Notes
 
+- Container build and push commands are commented out in the Makefile and need to be customized according to your project's requirements
 - The Makefile uses Podman instead of Docker for container operations
-- The environment can be deployed both locally and to OKD
-- Configuration is managed through Helm values files
-- Sensitive files (SSH keys, kubeconfig) are temporarily copied during build and then removed
-- The proxy container provides SSL certificates for secure communications
+- All Helm operations are executed through Podman to ensure consistency
+- The project assumes a proxy container with SSL certificates for HTTPS support
 
-## Security Considerations
+## Security
 
-- SSH keys and Kubernetes configuration files are only temporarily present during builds
-- OKD authentication is handled via token
-- SSL certificates are managed through the proxy container
-- Ensure proper access controls are in place for the OKD registry
-
-## Troubleshooting
-
-If you encounter issues:
-1. Ensure all prerequisites are installed
-2. Verify the paths to configuration files
-3. Check that the OKD token is valid
-4. Ensure proper network access to the OKD registry
-5. Verify the namespace doesn't conflict with existing deployments
+- Make sure to properly secure your `OKD_LOGIN_TOKEN` and other sensitive environment variables
+- The proxy certificate is exposed through the `cert` command - ensure this aligns with your security requirements
