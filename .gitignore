@@ -18,12 +18,11 @@ Thumbs.db
 .vscode/
 
 # Deployment
-!templates/configmaps/proxy.yaml
-!templates/configmaps/codium.yaml
-!templates/secrets/codium.yaml
-
 templates/secrets/*.yaml
 templates/configmaps/*.yaml
+
+!templates/configmaps/proxy.yaml
+!templates/configmaps/codium.yaml
 
 kube.yaml
 
