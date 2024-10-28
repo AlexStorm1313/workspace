@@ -18,9 +18,11 @@ Thumbs.db
 .vscode/
 
 # Deployment
+containers/*
 templates/secrets/*.yaml
 templates/configmaps/*.yaml
 
+!containers/.gitkeep
 !templates/configmaps/proxy.yaml
 !templates/configmaps/codium.yaml
 
