@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-codium
+data:
+  continue: |
+    {
+    "models": [
+        {
+            "title": "llama3.1:8b",
+            "provider": "ollama",
+            "model": "llama3.1:8b",
+            "apiBase": "http://workspace-ollama-pod:11434"
+        },
+        {
+            "title": "llama3.1:8b-instruct-fp16",
+            "provider": "ollama",
+            "model": "llama3.1:8b-instruct-fp16",
+            "apiBase": "http://workspace-ollama-pod:11434"
+        }
+    ],
+    "tabAutocompleteModel": {
+        "title": "llama3.1:8b",
+        "provider": "ollama",
+        "model": "llama3.1:8b",
+        "apiBase": "http://workspace-ollama-pod:11434"
+    },
+    "contextProviders": [
+        {
+            "name": "code",
+            "params": {}
+        },
+        {
+            "name": "docs",
+            "params": {}
+        },
+        {
+            "name": "diff",
+            "params": {}
+        },
+        {
+            "name": "terminal",
+            "params": {}
+        },
+        {
+            "name": "problems",
+            "params": {}
+        },
+        {
+            "name": "folder",
+            "params": {}
+        },
+        {
+            "name": "codebase",
+            "params": {}
+        }
+    ],
+    "slashCommands": [
+        {
+            "name": "edit",
+            "description": "Edit selected code"
+        },
+        {
+            "name": "comment",
+            "description": "Write comments for the selected code"
+        },
+        {
+            "name": "share",
+            "description": "Export the current chat session to markdown"
+        },
+        {
+            "name": "cmd",
+            "description": "Generate a shell command"
+        },
+        {
+            "name": "commit",
+            "description": "Generate a git commit message"
+        }
+    ],
+    }
+  git: |
+    [user]
+    email = johndoe@email
+    name = John Doe
+
+    [init]
+    defaultBranch = master
+
+    [safe]
+    directory = *
+  
+  codium: |
+    {
+      "editor.fontFamily": "Fira Code Retina",
+      "editor.fontLigatures": true,
+      "editor.formatOnSave": true,
+      "files.autoSave": "onWindowChange",
+      "workbench.colorTheme": "Default Dark Modern",
+      "workbench.startupEditor": "none",
+      "redhat.telemetry.enabled": false,
+      "workbench.panel.defaultLocation": "left",
+      "explorer.confirmDragAndDrop": false,
+      "explorer.compactFolders": false,
+      "git.enableSmartCommit": true,
+      "terminal.integrated.tabs.enabled": false,
+      "window.commandCenter": false,
+      "continue.telemetryEnabled": false
+    }
