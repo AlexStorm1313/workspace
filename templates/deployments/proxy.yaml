@@ -1,0 +1,123 @@
+{{ if eq .Values.environment "podman" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-proxy
+  labels:
+    app: {{ .Release.Name }}-proxy
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-proxy
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-proxy
+        deployment: {{ .Release.Name }}-proxy
+    spec:
+      {{ include "deployment.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/nginx",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/run",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/certificates",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
+        - name: openssl
+          image: docker.io/alpine/openssl:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: DOMAIN
+              value: localhost
+            - name: COUNTRY
+              value: US
+            - name: STATE
+              value: workspace
+            - name: CITY
+              value: workspace
+            - name: ORGANIZATION
+              value: workspace
+          args: ["req", "-x509", "-noenc", "-days", "365", "-newkey", "rsa:2048", "-keyout", "/etc/nginx/certificates/private.key", "-out", "/etc/nginx/certificates/certificate.crt", "-subj", "/C=$(COUNTRY)/ST=$(STATE)/L=$(CITY)/O=$(ORGANIZATION)/CN=$(DOMAIN)","-addext", "subjectAltName=DNS:$(DOMAIN),DNS:*.$(DOMAIN)"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-certificates
+              mountPath: /etc/nginx/certificates
+      containers:
+        - name: nginx
+          image: docker.io/nginx:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: NGINX_RESOLVER
+              value: 10.89.0.1
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+            - containerPort: 8443
+              hostPort: 8443
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /var/cache/nginx
+              subPath: nginx
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /var/run
+              subPath: run
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /etc/nginx/conf.d
+              subPath: conf.d
+
+            - name: {{ .Release.Name }}-proxy-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx
+
+            - name: {{ .Release.Name }}-proxy-certificates
+              mountPath: /etc/nginx/certificates
+            - name: {{ .Release.Name }}-proxy-includes
+              mountPath: /etc/nginx/includes
+            - name: {{ .Release.Name }}-proxy-templates
+              mountPath: /etc/nginx/templates
+      volumes:
+        - name: {{ .Release.Name }}-proxy-certificates
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-proxy-certificates
+
+        - name: {{ .Release.Name }}-proxy-config
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+
+        - name: {{ .Release.Name }}-proxy-includes
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+            items:
+              - key: listen
+                path: listen.conf
+              - key: proxy
+                path: proxy.conf
+              - key: ssl
+                path: ssl.conf
+        - name: {{ .Release.Name }}-proxy-templates
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+            items:
+              - key: workspace
+                path: workspace.conf.template
+        - name: {{ .Release.Name }}-proxy-nginx
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-proxy-nginx
+{{ end }}

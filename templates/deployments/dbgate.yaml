@@ -1,0 +1,50 @@
+{{ if has "dbgate" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-dbgate
+  labels:
+    app: {{ .Release.Name }}-dbgate
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-dbgate
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-dbgate
+        deployment: {{ .Release.Name }}-dbgate
+    spec:
+      {{ include "deployment.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbgate",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-dbgate-dbgate
+              mountPath: /mnt/{{ .Release.Name }}-dbgate-dbgate
+      containers:
+        - name: dbgate
+          image: docker.io/dbgate/dbgate:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-dbgate-dbgate
+              mountPath: /home/dbgate-docker/.dbgate
+              subPath: .dbgate
+      volumes:       
+        - name: {{ .Release.Name }}-dbgate-dbgate
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-dbgate-dbgate
+{{ end }}

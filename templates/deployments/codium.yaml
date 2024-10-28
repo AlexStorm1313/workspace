@@ -1,0 +1,70 @@
+{{ if has "codium" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-codium
+  labels:
+    app: {{ .Release.Name }}-codium
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-codium
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-codium
+        deployment: {{ .Release.Name }}-codium
+    spec:
+      {{ include "deployment.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/CachedProfilesData",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/Machine",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/User",
+            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
+            "/mnt/{{ .Release.Name }}-codium-codium/.cache",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
+      containers:
+        - name: codium
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium/.openvscode-server
+              subPath: .openvscode-server
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium/.cache
+              subPath: .cache
+
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/codium/workspace/{{ . }}
+            {{ end }}
+      volumes:
+        - name: {{ .Release.Name }}-codium-codium
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-codium-codium
+        
+        {{ range .Values.deployments.volumes }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ . }}
+        {{ end }}
+{{ end }}

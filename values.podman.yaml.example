@@ -1,0 +1,6 @@
+environment: podman
+deployments:
+  containers:
+    image: localhost
+    pullPolicy: IfNotPresent
+  volumes:

@@ -1,0 +1,88 @@
+{{ if has "theia" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-theia
+  labels:
+    app: {{ .Release.Name }}-theia
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-theia
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-theia
+        deployment: {{ .Release.Name }}-theia
+    spec:
+      {{ if eq .Values.environment "podman" }}
+      securityContext:
+        allowPrivilegeEscalation: false
+        # readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+        # runAsUser: {{randNumeric 4}}
+        runAsUser: 1001
+        runAsGroup: 0
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      {{ end }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-theia-theia/.theia",
+            "/mnt/{{ .Release.Name }}-theia-theia/.theia-ide",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-theia-theia
+              mountPath: /mnt/{{ .Release.Name }}-theia-theia
+      containers:
+        - name: theia
+          image: ghcr.io/eclipse-theia/theia-blueprint/theia-ide:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          volumeMounts:
+            # - name: {{ .Release.Name }}-theia-theia
+            #   mountPath: /home/theia/.theia
+            #   subPath: .theia
+            # - name: {{ .Release.Name }}-theia-theia
+            #   mountPath: /home/theia/.theia-ide
+            #   subPath: .theia-ide
+            
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/codium/workspace/{{ . }}
+            {{ end }}
+            
+            
+      volumes:
+        - name: {{ .Release.Name }}-codium-secrets
+          secret:
+            secretName: {{ .Release.Name }}-codium
+            optional: true
+        - name: {{ .Release.Name }}-codium-configmaps
+          configMap:
+            name: {{ .Release.Name }}-codium
+            optional: true
+
+        - name: {{ .Release.Name }}-theia-theia
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-theia-theia
+
+        {{ range .Values.deployments.volumes }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ . }}
+        {{ end }}
+{{ end }}

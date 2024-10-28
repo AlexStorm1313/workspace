@@ -1,0 +1,61 @@
+{{ if has "open-webui" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-open-webui
+  labels:
+    app: {{ .Release.Name }}-open-webui
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-open-webui
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-open-webui
+        deployment: {{ .Release.Name }}-open-webui
+    spec:
+      {{ include "deployment.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-open-webui-open-webui/data",
+            "/mnt/{{ .Release.Name }}-open-webui-open-webui/static",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /mnt/{{ .Release.Name }}-open-webui-open-webui
+      containers:
+        - name: open-webui
+          image: ghcr.io/open-webui/open-webui:main
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: OLLAMA_BASE_URL
+              value: http://workspace-ollama-pod:11434
+            - name: WEBUI_SECRET_KEY
+              value: secret
+            - name: WEBUI_AUTH
+              value: false
+          volumeMounts:
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /app/backend/data
+              subPath: data
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /app/backend/static
+              subPath: static
+      volumes:       
+        - name: {{ .Release.Name }}-open-webui-open-webui
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-open-webui-open-webui
+{{ end }}
