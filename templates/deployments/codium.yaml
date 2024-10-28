@@ -57,7 +57,42 @@ spec:
             - name: {{ . }}
               mountPath: /home/codium/workspace/{{ . }}
             {{ end }}
+
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.ssh/privatekey
+              subPath: ssh
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.wakatime.cfg
+              subPath: wakatime
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.kube/config
+              subPath: kube
+              readOnly: true
+
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.continue/config.json
+              subPath: continue
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.gitconfig
+              subPath: git
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.openvscode-server/data/Machine/settings.json
+              subPath: codium
+              readOnly: true
       volumes:
+        - name: {{ .Release.Name }}-codium-secrets
+          secret:
+            secretName: {{ .Release.Name }}-codium
+            optional: true
+        - name: {{ .Release.Name }}-codium-configmaps
+          configMap:
+            name: {{ .Release.Name }}-codium
+            optional: true
+
         - name: {{ .Release.Name }}-codium-codium
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-codium-codium
