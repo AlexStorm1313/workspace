@@ -13,8 +13,7 @@ spec:
   - name: latest
     from:
         kind: DockerImage
-        # name: 'docker.io/busybox:latest'
-        name: 'quay.io/prometheus/busybox:latest'
+        name: 'docker.io/busybox:latest'
     importPolicy:
       scheduled: true
     referencePolicy:
