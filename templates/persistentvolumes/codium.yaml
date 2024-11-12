@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-codium-codium
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete ## MAybe delete bacuse container populates each time
+  storageClassName: local-storage
+  local:
+    path: /var/lib/containers/storage/tmp # auto make subdirs would be livesaver figure this out
+    # path: /var/lib/containers/storage/tmp/{{ .Release.Name }}-zeus-api
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - sno

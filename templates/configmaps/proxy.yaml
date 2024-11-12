@@ -136,3 +136,18 @@ data:
           set $upstream http://workspace-theia-pod:3000;
       }
     }
+
+  alexbrasser: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name website.alexbrasser.localhost website.alexbrasser.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://alexbrasser-website-pod:3000;
+      }
+    }

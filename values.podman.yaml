@@ -4,3 +4,4 @@ deployments:
     image: localhost
     pullPolicy: IfNotPresent
   volumes:
+    - alexbrasser-website-website

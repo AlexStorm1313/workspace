@@ -2,9 +2,10 @@
 
 NAMESPACE=workspace
 
-OKD_LOGIN_TOKEN=
-OKD_REGISTERY_URL=
-KUBECONFIG_PATH=
+# OKD_LOGIN_TOKEN=sha256~800aG_QUJ6WO-GxtpFdSs4IXpkWJf1fu2foLTox3GgQ
+# OKD_REGISTERY_URL=
+KUBECONFIG_PATH=~/.kube/config
+# KUBECONFIG_PATH=/home/alexstorm13/Development/okd-tooling/output/sno/4.15.0-0.okd-2024-03-10-010116/auth_bak/kubeconfig
 
 # Build local containers
 build:
@@ -38,17 +39,17 @@ push:
 
 # Install the Helm Chart on the OKD/OpenShift cluster
 install:
-	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest install ${NAMESPACE} --values values.yaml --values ./values.okd.yaml .
+	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest --namespace=appfusion install ${NAMESPACE} --values values.yaml --values ./values.okd.yaml .
 	make push
 
 # Upgrade the Helm Chart on the OKD/OpenShift cluster
 upgrade:
 	make push
-	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest upgrade ${NAMESPACE} --values values.yaml --values ./values.okd.yaml .
+	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest --namespace=appfusion upgrade ${NAMESPACE} --values values.yaml --values ./values.okd.yaml .
 
 # Uninstall the Helm Chart on the OKD/OpenShift cluster
 uninstall:
-	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest uninstall ${NAMESPACE}
+	podman run --privileged -it --rm -v ${KUBECONFIG_PATH}:/root/.kube/config -v ./:/apps -w /apps alpine/helm:latest --namespace=appfusion uninstall ${NAMESPACE}
 
 # Copy the certificate from the proxy container
 cert:

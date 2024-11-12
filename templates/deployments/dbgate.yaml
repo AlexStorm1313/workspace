@@ -31,6 +31,7 @@ spec:
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbgate",
+            "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbkate",
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-dbgate-dbgate

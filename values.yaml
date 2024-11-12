@@ -4,6 +4,6 @@ services:
   # - theia
   - dbgate
   - open-webui
-  - ollama
+  # - ollama
   - chromium
   - penpot

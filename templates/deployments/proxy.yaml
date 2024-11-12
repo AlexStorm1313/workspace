@@ -117,6 +117,8 @@ spec:
             items:
               - key: workspace
                 path: workspace.conf.template
+              - key: alexbrasser
+                path: alexbrasser.conf.template
         - name: {{ .Release.Name }}-proxy-nginx
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-proxy-nginx

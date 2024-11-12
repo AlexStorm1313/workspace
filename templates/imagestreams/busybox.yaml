@@ -1,0 +1,20 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: busybox
+  annotations:
+    app.kubernetes.io/managed-by: "Helm"
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - name: latest
+    from:
+        kind: DockerImage
+        name: 'docker.io/busybox:latest'
+    importPolicy:
+      scheduled: true
+    referencePolicy:
+      type: Source

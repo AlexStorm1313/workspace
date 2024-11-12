@@ -46,7 +46,7 @@ spec:
             - name: WEBUI_SECRET_KEY
               value: secret
             - name: WEBUI_AUTH
-              value: false
+              value: "false"
           volumeMounts:
             - name: {{ .Release.Name }}-open-webui-open-webui
               mountPath: /app/backend/data
