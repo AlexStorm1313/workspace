@@ -27,7 +27,11 @@ spec:
       {{ include "deployment.securityContext" . | indent 6 }}
       initContainers:
         - name: volume
+          {{ if eq .Values.environment "okd" }}
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/busybox:latest
+          {{ else }}
           image: docker.io/busybox:latest
+          {{ end }}          
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbgate",
@@ -38,7 +42,11 @@ spec:
               mountPath: /mnt/{{ .Release.Name }}-dbgate-dbgate
       containers:
         - name: dbgate
+          {{ if eq .Values.environment "okd" }}
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/dbgate:latest
+          {{ else }}
           image: docker.io/dbgate/dbgate:latest
+          {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           volumeMounts:
             - name: {{ .Release.Name }}-dbgate-dbgate

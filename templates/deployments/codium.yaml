@@ -27,7 +27,11 @@ spec:
       {{ include "deployment.securityContext" . | indent 6 }}
       initContainers:
         - name: volume
+          {{ if eq .Values.environment "okd" }}
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/busybox:latest
+          {{ else }}
           image: docker.io/busybox:latest
+          {{ end }}
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server",
@@ -43,7 +47,11 @@ spec:
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: codium
+          {{ if eq .Values.environment "okd" }}
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/codium:latest
+          {{ else }}
           image: ghcr.io/alexstorm1313/codium:latest
+          {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
