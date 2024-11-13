@@ -35,7 +35,7 @@ spec:
           command: ["/bin/cp"]
           args: ["-r",
             "/home/dbgate-docker",
-            "/mnt/{{ .Release.Name }}-dbgate-dbgate/dbgate-docker",
+            "/mnt/{{ .Release.Name }}-dbgate-dbgate",
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-dbgate-dbgate
