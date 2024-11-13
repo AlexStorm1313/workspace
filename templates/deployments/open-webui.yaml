@@ -54,6 +54,14 @@ spec:
             - name: {{ .Release.Name }}-open-webui-open-webui
               mountPath: /app/backend/static
               subPath: static
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
       volumes:       
         - name: {{ .Release.Name }}-open-webui-open-webui
           persistentVolumeClaim:

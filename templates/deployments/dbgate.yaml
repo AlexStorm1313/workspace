@@ -26,16 +26,29 @@ spec:
     spec:
       {{ include "deployment.securityContext" . | indent 6 }}
       initContainers:
+        - name: copy
+          {{ if eq .Values.environment "okd" }}
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/dbgate:latest
+          {{ else }}
+          image: docker.io/dbgate/dbgate:latest
+          {{ end }}
+          command: ["/bin/cp"]
+          args: ["-r",
+            "/home/dbgate-docker",
+            "/mnt/{{ .Release.Name }}-dbgate-dbgate/dbgate-docker",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-dbgate-dbgate
+              mountPath: /mnt/{{ .Release.Name }}-dbgate-dbgate
         - name: volume
           {{ if eq .Values.environment "okd" }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/busybox:latest
           {{ else }}
           image: docker.io/busybox:latest
-          {{ end }}          
+          {{ end }}
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbgate",
-            "/mnt/{{ .Release.Name }}-dbgate-dbgate/.dbkate",
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-dbgate-dbgate
@@ -50,7 +63,10 @@ spec:
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           volumeMounts:
             - name: {{ .Release.Name }}-dbgate-dbgate
-              mountPath: /home/dbgate-docker/.dbgate
+              mountPath: /home/dbgate-docker
+              subPath: dbgate-docker
+            - name: {{ .Release.Name }}-dbgate-dbgate
+              mountPath: /.dbgate
               subPath: .dbgate
           # Example configuration for adding database sources
           # env:
@@ -78,6 +94,14 @@ spec:
           #     value: example-cache-pod
           #   - name: ENGINE_cache
           #     value: redis@dbgate-plugin-redis
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
       volumes:       
         - name: {{ .Release.Name }}-dbgate-dbgate
           persistentVolumeClaim:

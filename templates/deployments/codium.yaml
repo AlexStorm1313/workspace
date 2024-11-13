@@ -91,6 +91,14 @@ spec:
               mountPath: /home/codium/.openvscode-server/data/Machine/settings.json
               subPath: codium
               readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
       volumes:
         - name: {{ .Release.Name }}-codium-secrets
           secret:
