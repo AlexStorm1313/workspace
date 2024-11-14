@@ -5,6 +5,8 @@ metadata:
   name: {{ .Release.Name }}-dbgate
   labels:
     app: {{ .Release.Name }}-dbgate
+  annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag","name": "dbgate:latest",},"fieldPath": "spec.template.spec.containers[?(@.name==\"dbgate\")].image"},]'
 spec:
   {{ if .Values.devmode }}
   strategy:

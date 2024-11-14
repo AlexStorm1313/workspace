@@ -5,6 +5,8 @@ metadata:
   name: {{ .Release.Name }}-codium
   labels:
     app: {{ .Release.Name }}-codium
+  annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag","name": "codium:latest",},"fieldPath": "spec.template.spec.containers[?(@.name==\"codium\")].image"},]'
 spec:
   {{ if .Values.devmode }}
   strategy:
