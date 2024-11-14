@@ -1,3 +1,4 @@
+{{ if has "open-webui" .Values.services }}
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
@@ -8,7 +9,7 @@ metadata:
     meta.helm.sh/release-namespace: {{ .Release.Namespace }}
 spec:
   lookupPolicy:
-    local: false
+    local: true
   tags:
   - name: main
     from:
@@ -18,3 +19,4 @@ spec:
       scheduled: true
     referencePolicy:
       type: Source
+{{ end }}

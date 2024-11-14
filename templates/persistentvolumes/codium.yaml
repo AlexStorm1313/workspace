@@ -1,3 +1,4 @@
+{{ if has "codium" .Values.services }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -23,3 +24,4 @@ spec:
           operator: In
           values:
           - sno
+{{ end }}
