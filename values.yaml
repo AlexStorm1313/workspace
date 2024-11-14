@@ -1,4 +1,4 @@
-devmode: true
+devmode: false
 services:
   - codium
   # - theia

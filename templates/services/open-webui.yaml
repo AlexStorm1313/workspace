@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-open-webui
+spec:
+  selector:
+    app: {{ .Release.Name }}-open-webui
+  ports:
+  - name: {{ .Release.Name }}-open-webui-tcp
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  - name: {{ .Release.Name }}-open-webui-udp
+    protocol: UDP
+    port: 8080
+    targetPort: 8080

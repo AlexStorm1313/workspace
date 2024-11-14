@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ .Release.Name }}-dbgate-dbgate
+  name: {{ .Release.Namespace }}-{{ .Release.Name }}-dbgate-dbgate
 spec:
   capacity:
     storage: 10Gi
@@ -10,9 +10,11 @@ spec:
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Delete ## MAybe delete bacuse container populates each time
   storageClassName: local-storage
+  claimRef:
+    name: {{ .Release.Name }}-dbgate-dbgate
+    namespace: {{ .Release.Namespace }}
   local:
-    path: /var/lib/containers/storage/tmp # auto make subdirs would be livesaver figure this out
-    # path: /var/lib/containers/storage/tmp/{{ .Release.Name }}-zeus-api
+    path: /tmp
   nodeAffinity:
     required:
       nodeSelectorTerms:

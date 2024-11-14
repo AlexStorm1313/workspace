@@ -1,0 +1,16 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ .Release.Name }}-open-webui
+spec:
+  host: open-webui.{{ .Release.Name }}.{{ .Release.Namespace }}.apps.sno.okd
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-open-webui
+    weight: 100
+  port:
+    targetPort: {{ .Release.Name }}-open-webui-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
