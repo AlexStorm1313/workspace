@@ -43,6 +43,7 @@ spec:
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/User",
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
+            "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
@@ -62,6 +63,9 @@ spec:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/codium/.cache
               subPath: .cache
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium/.ssh
+              subPath: .ssh
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
