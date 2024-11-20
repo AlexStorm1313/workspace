@@ -80,8 +80,8 @@ data:
     }
   git: |
     [user]
-    email = johndoe@email
-    name = John Doe
+    email = alexbrasser@gmail.com
+    name = Alex Brasser
 
     [init]
     defaultBranch = master
