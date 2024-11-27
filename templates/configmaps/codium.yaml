@@ -84,7 +84,7 @@ data:
     name = Alex Brasser
 
     [init]
-    defaultBranch = master
+    defaultBranch = main
 
     [safe]
     directory = *

@@ -92,11 +92,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
       volumes:
         - name: {{ .Release.Name }}-proxy-certificates
           persistentVolumeClaim:
@@ -123,10 +123,16 @@ spec:
             name: {{ .Release.Name }}-proxy
             optional: true
             items:
+              - key: default
+                path: default.conf.template
               - key: workspace
                 path: workspace.conf.template
               - key: alexbrasser
                 path: alexbrasser.conf.template
+              - key: appfusion
+                path: appfusion.conf.template
+              - key: automtr
+                path: automtr.conf.template
         - name: {{ .Release.Name }}-proxy-nginx
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-proxy-nginx

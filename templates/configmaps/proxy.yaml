@@ -66,6 +66,20 @@ data:
     ssl_prefer_server_ciphers on;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
 
+  default: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name localhost fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          root   /usr/share/nginx/html;
+          index  index.html index.htm;
+      }
+    }
+
   workspace: |
     server {
       include /etc/nginx/includes/listen.conf;
@@ -149,5 +163,35 @@ data:
           resolver ${NGINX_RESOLVER};
           include /etc/nginx/includes/proxy.conf;
           set $upstream http://alexbrasser-website-pod:3000;
+      }
+    }
+
+  appfusion: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name dashboard.appfusion.localhost dashboard.appfusion.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://appfusion-dashboard-pod:3000;
+      }
+    }
+
+  automtr: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name browser.automtr.localhost browser.automtr.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://automtr-browser-pod:3000;
       }
     }

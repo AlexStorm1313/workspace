@@ -5,3 +5,5 @@ deployments:
     pullPolicy: IfNotPresent
   volumes:
     - alexbrasser-website-website
+    - appfusion-dashboard-dashboard
+    - automtr-browser-browser
