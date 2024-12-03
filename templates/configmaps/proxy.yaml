@@ -185,6 +185,20 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
+      server_name api.automtr.localhost api.automtr.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://automtr-api-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
       server_name browser.automtr.localhost browser.automtr.fedora-workstation;
 
       include /etc/nginx/includes/ssl.conf;
@@ -193,5 +207,33 @@ data:
           resolver ${NGINX_RESOLVER};
           include /etc/nginx/includes/proxy.conf;
           set $upstream http://automtr-browser-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name dashboard.automtr.localhost dashboard.automtr.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://automtr-dashboard-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name website.automtr.localhost website.automtr.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://automtr-website-pod:3000;
       }
     }

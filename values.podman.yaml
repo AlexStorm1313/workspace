@@ -6,4 +6,6 @@ deployments:
   volumes:
     - alexbrasser-website-website
     - appfusion-dashboard-dashboard
+    - automtr-api-api
     - automtr-browser-browser
+    - automtr-website-website
