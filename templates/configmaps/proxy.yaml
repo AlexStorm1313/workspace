@@ -170,7 +170,21 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name dashboard.appfusion.localhost dashboard.appfusion.fedora-workstation;
+      server_name appfusion.localhost appfusion.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://appfusion-dashboard-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name *.appfusion.localhost *.appfusion.fedora-workstation;
 
       include /etc/nginx/includes/ssl.conf;
 
@@ -213,27 +227,27 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name dashboard.automtr.localhost dashboard.automtr.fedora-workstation;
+      server_name automtr.localhost automtr.fedora-workstation;
 
       include /etc/nginx/includes/ssl.conf;
 
       location / {
           resolver ${NGINX_RESOLVER};
           include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-dashboard-pod:3000;
+          set $upstream http://automtr-interface-pod:3000;
       }
     }
 
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name website.automtr.localhost website.automtr.fedora-workstation;
+      server_name *.automtr.localhost *.automtr.fedora-workstation;
 
       include /etc/nginx/includes/ssl.conf;
 
       location / {
           resolver ${NGINX_RESOLVER};
           include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-website-pod:3000;
+          set $upstream http://automtr-interface-pod:3000;
       }
     }
