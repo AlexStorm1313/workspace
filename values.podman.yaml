@@ -8,4 +8,4 @@ deployments:
     - appfusion-dashboard-dashboard
     - automtr-api-api
     - automtr-browser-browser
-    - automtr-website-website
+    - automtr-interface-interface
