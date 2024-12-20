@@ -3,81 +3,6 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-codium
 data:
-  continue: |
-    {
-    "models": [
-        {
-            "title": "llama3.1:8b",
-            "provider": "ollama",
-            "model": "llama3.1:8b",
-            "apiBase": "http://workspace-ollama-pod:11434"
-        },
-        {
-            "title": "llama3.1:8b-instruct-fp16",
-            "provider": "ollama",
-            "model": "llama3.1:8b-instruct-fp16",
-            "apiBase": "http://workspace-ollama-pod:11434"
-        }
-    ],
-    "tabAutocompleteModel": {
-        "title": "llama3.1:8b",
-        "provider": "ollama",
-        "model": "llama3.1:8b",
-        "apiBase": "http://workspace-ollama-pod:11434"
-    },
-    "contextProviders": [
-        {
-            "name": "code",
-            "params": {}
-        },
-        {
-            "name": "docs",
-            "params": {}
-        },
-        {
-            "name": "diff",
-            "params": {}
-        },
-        {
-            "name": "terminal",
-            "params": {}
-        },
-        {
-            "name": "problems",
-            "params": {}
-        },
-        {
-            "name": "folder",
-            "params": {}
-        },
-        {
-            "name": "codebase",
-            "params": {}
-        }
-    ],
-    "slashCommands": [
-        {
-            "name": "edit",
-            "description": "Edit selected code"
-        },
-        {
-            "name": "comment",
-            "description": "Write comments for the selected code"
-        },
-        {
-            "name": "share",
-            "description": "Export the current chat session to markdown"
-        },
-        {
-            "name": "cmd",
-            "description": "Generate a shell command"
-        },
-        {
-            "name": "commit",
-            "description": "Generate a git commit message"
-        }
-    ],
-    }
   git: |
     [user]
     email = alexbrasser@gmail.com
@@ -104,5 +29,5 @@ data:
       "git.enableSmartCommit": true,
       "terminal.integrated.tabs.enabled": false,
       "window.commandCenter": false,
-      "continue.telemetryEnabled": false
+      "twinny.ollamaHostname": "workspace-ollama-pod"
     }
