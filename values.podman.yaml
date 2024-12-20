@@ -2,7 +2,7 @@ environment: podman
 deployments:
   containers:
     image: localhost
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   volumes:
     - alexbrasser-website-website
     - appfusion-dashboard-dashboard

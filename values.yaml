@@ -1,9 +1,9 @@
-devmode: true
+devmode: false
 services:
   - codium
   # - theia
   - dbgate
-  # - open-webui
-  # - ollama
+  - open-webui
+  - ollama
   # - chromium
   # - penpot
