@@ -37,6 +37,8 @@ data:
 
         #gzip  on;
 
+        client_max_body_size 500M;
+
         include /etc/nginx/conf.d/*.conf;
     }
 

@@ -85,6 +85,10 @@ spec:
               subPath: kube
               readOnly: true
 
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.continue/config.json
+            #   subPath: continue
+            #   readOnly: true
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/codium/.gitconfig
               subPath: git
