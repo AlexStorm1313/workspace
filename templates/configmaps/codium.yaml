@@ -17,7 +17,7 @@ data:
       "title": "llama3.1:latest",
       "provider": "ollama",
       "model": "llama3.1:latest",
-      "apiBase": "http://workspace-ollama-pod:11434/v1"
+      "apiBase": "http://workspace-ollama-pod:11434"
     },
     "contextProviders": [
       {
@@ -85,7 +85,7 @@ data:
       "workbench.colorTheme": "Default Dark Modern",
       "workbench.startupEditor": "none",
       "workbench.editor.enablePreview": false,
-      "workbench.layoutControl.enabled": false
+      "workbench.layoutControl.enabled": false,
       "redhat.telemetry.enabled": false,
       "workbench.panel.defaultLocation": "left",
       "explorer.confirmDragAndDrop": false,
@@ -93,5 +93,6 @@ data:
       "git.enableSmartCommit": true,
       "terminal.integrated.tabs.enabled": false,
       "window.commandCenter": false,
-      "continue.telemetryEnabled": false
+      "continue.telemetryEnabled": false,
+      "errorLens.messageEnabled": true
     }

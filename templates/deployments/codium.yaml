@@ -44,6 +44,10 @@ spec:
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
             "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue",
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue/dev_data",
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue/index",
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue/types",
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
@@ -54,6 +58,7 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/codium:latest
           {{ else }}
           image: ghcr.io/alexstorm1313/codium:latest
+          # image: localhost/workspace-codium-codium:latest
           {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:
