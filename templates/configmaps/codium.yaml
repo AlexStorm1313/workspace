@@ -4,66 +4,78 @@ metadata:
   name: {{ .Release.Name }}-codium
 data:
   continue: |
+  {
+  "models": [
     {
-      "models": [
-    {
-      "title": "deepseek-r1:32b",
+      "title": "Deepseek-r1 32b",
       "provider": "ollama",
       "model": "deepseek-r1:32b",
       "apiBase": "http://workspace-ollama-pod:11434"
-    }
-    ],
-    "tabAutocompleteModel": {
-      "title": "llama3.1:latest",
-      "provider": "ollama",
-      "model": "llama3.1:latest",
-      "apiBase": "http://workspace-ollama-pod:11434"
     },
-    "contextProviders": [
-      {
-        "name": "code",
-        "params": {}
-      },
-      {
-        "name": "docs",
-        "params": {}
-      },
-      {
-        "name": "diff",
-        "params": {}
-      },
-      {
-        "name": "terminal",
-        "params": {}
-      },
-      {
-        "name": "problems",
-        "params": {}
-      },
-      {
-        "name": "folder",
-        "params": {}
-      },
-      {
-        "name": "codebase",
-        "params": {}
-      }
-    ],
-    "slashCommands": [
-      {
-        "name": "share",
-        "description": "Export the current chat session to markdown"
-      },
-      {
-        "name": "cmd",
-        "description": "Generate a shell command"
-      },
-      {
-        "name": "commit",
-        "description": "Generate a git commit message"
-      }
-    ]
+    {
+      "title": "Llama3.1 8B",
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "apiBase": "http://workspace-ollama-pod:11434"
     }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen2.5-Coder 1.5B",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:1.5b-base",
+    "apiBase": "http://workspace-ollama-pod:11434"
+  },
+  "embeddingsProvider": {
+    "title": "Nomic Embed Text",
+    "provider": "ollama",
+    "model": "nomic-embed-text",
+    "apiBase": "http://workspace-ollama-pod:11434"
+  },
+  "contextProviders": [
+    {
+      "name": "code",
+      "params": {}
+    },
+    {
+      "name": "docs",
+      "params": {}
+    },
+    {
+      "name": "diff",
+      "params": {}
+    },
+    {
+      "name": "terminal",
+      "params": {}
+    },
+    {
+      "name": "problems",
+      "params": {}
+    },
+    {
+      "name": "folder",
+      "params": {}
+    },
+    {
+      "name": "codebase",
+      "params": {}
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "share",
+      "description": "Export the current chat session to markdown"
+    },
+    {
+      "name": "cmd",
+      "description": "Generate a shell command"
+    },
+    {
+      "name": "commit",
+      "description": "Generate a git commit message"
+    }
+  ]
+  }
   git: |
     [user]
     email = alexbrasser@gmail.com
