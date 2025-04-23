@@ -57,8 +57,8 @@ spec:
           {{ if eq .Values.environment "okd" }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/codium:latest
           {{ else }}
-          image: ghcr.io/alexstorm1313/codium:latest
-          # image: localhost/workspace-codium-codium:latest
+          # image: ghcr.io/alexstorm1313/codium:latest
+          image: localhost/workspace-codium-codium:latest
           {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:

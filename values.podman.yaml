@@ -2,10 +2,11 @@ environment: podman
 deployments:
   containers:
     image: localhost
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
   volumes:
     - alexbrasser-website-website
     - appfusion-dashboard-dashboard
     - automtr-api-api
     - automtr-browser-browser
     - automtr-interface-interface
+    - automtr-browser-worker
