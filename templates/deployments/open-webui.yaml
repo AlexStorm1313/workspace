@@ -62,7 +62,7 @@ spec:
               mountPath: /app/backend/data
               subPath: data
             - name: {{ .Release.Name }}-open-webui-open-webui
-              mountPath: /app/backend/static
+              mountPath: /app/backend/open_webui/static
               subPath: static
           # livenessProbe:
           #   httpGet:

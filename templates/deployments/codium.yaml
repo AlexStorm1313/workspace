@@ -44,10 +44,7 @@ spec:
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
             "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue/dev_data",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue/index",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue/types",
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue"
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
