@@ -82,10 +82,10 @@ spec:
               mountPath: /home/codium/.wakatime.cfg
               subPath: wakatime
               readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/codium/.kube/config
-              subPath: kube
-              readOnly: true
+            # - name: {{ .Release.Name }}-codium-secrets
+            #   mountPath: /home/codium/.kube/config
+            #   subPath: kube
+            #   readOnly: true
 
             # - name: {{ .Release.Name }}-codium-configmaps
             #   mountPath: /home/codium/.continue/config.json
