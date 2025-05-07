@@ -106,5 +106,13 @@ data:
       "terminal.integrated.tabs.enabled": false,
       "window.commandCenter": false,
       "continue.telemetryEnabled": false,
-      "errorLens.messageEnabled": true
+      "errorLens.messageEnabled": true,
+      "aws.telemetry": false,
+      "yaml.customTags": [
+        "!*"
+      ]
     }
+
+  awz: |
+    [default]
+    region = eu-central-1

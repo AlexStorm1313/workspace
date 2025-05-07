@@ -44,6 +44,7 @@ spec:
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
             "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
+            "/mnt/{{ .Release.Name }}-codium-codium/.aws",
             "/mnt/{{ .Release.Name }}-codium-codium/.continue"
           ]
           volumeMounts:
@@ -82,6 +83,10 @@ spec:
               mountPath: /home/codium/.wakatime.cfg
               subPath: wakatime
               readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.aws/credentials
+              subPath: aws
+              readOnly: true
             # - name: {{ .Release.Name }}-codium-secrets
             #   mountPath: /home/codium/.kube/config
             #   subPath: kube
@@ -98,6 +103,10 @@ spec:
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/codium/.openvscode-server/data/Machine/settings.json
               subPath: codium
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.aws/config
+              subPath: awz
               readOnly: true
           livenessProbe:
             httpGet:
