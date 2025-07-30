@@ -1,6 +1,0 @@
-environment: okd
-deployments:
-  containers:
-    image: image-registry.openshift-image-registry.svc:5000
-    pullPolicy: Always
-  volumes:

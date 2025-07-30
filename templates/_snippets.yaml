@@ -1,13 +1,25 @@
-{{ define "deployment.securityContext" }}
+{{ define "pod.securityContext" }}
+{{ if eq .Values.environment "podman" }}
+securityContext:
+  runAsGroup: 0
+  runAsNonRoot: true
+  runAsUser: 1001
+  seccompProfile:
+    type: RuntimeDefault
+{{ end }}
+{{ end }}
+
+{{ define "container.securityContext" }}
 {{ if eq .Values.environment "podman" }}
 securityContext:
   allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
   capabilities:
     drop: ["ALL"]
-  runAsUser: 1001
+  privileged: false
+  readOnlyRootFilesystem: true
   runAsGroup: 0
-  runAsNonRoot: true
+  runAsNonRoot: true  
+  runAsUser: 1001
   seccompProfile:
     type: RuntimeDefault
 {{ end }}

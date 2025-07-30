@@ -24,7 +24,7 @@ spec:
         app: {{ .Release.Name }}-proxy
         deployment: {{ .Release.Name }}-proxy
     spec:
-      {{ include "deployment.securityContext" . | indent 6 }}
+      {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: volume
           image: docker.io/busybox:latest
@@ -58,6 +58,7 @@ spec:
               mountPath: /etc/nginx/certificates
       containers:
         - name: nginx
+          {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/nginx:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:

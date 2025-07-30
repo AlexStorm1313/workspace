@@ -24,14 +24,10 @@ spec:
         app: {{ .Release.Name }}-open-webui
         deployment: {{ .Release.Name }}-open-webui
     spec:
-      {{ include "deployment.securityContext" . | indent 6 }}
+      {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: volume
-          {{ if eq .Values.environment "okd" }}
-          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/busybox:latest
-          {{ else }}
           image: docker.io/busybox:latest
-          {{ end }}
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-open-webui-open-webui/data",
@@ -42,11 +38,8 @@ spec:
               mountPath: /mnt/{{ .Release.Name }}-open-webui-open-webui
       containers:
         - name: open-webui
-          {{ if eq .Values.environment "okd" }}
-          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/open-webui:main
-          {{ else }}
+          {{ include "container.securityContext" . | indent 10 }}
           image: ghcr.io/open-webui/open-webui:main
-          {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
             - name: OLLAMA_BASE_URL

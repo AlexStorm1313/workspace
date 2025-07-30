@@ -26,14 +26,10 @@ spec:
         app: {{ .Release.Name }}-codium
         deployment: {{ .Release.Name }}-codium
     spec:
-      {{ include "deployment.securityContext" . | indent 6 }}
+      {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: volume
-          {{ if eq .Values.environment "okd" }}
-          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/busybox:latest
-          {{ else }}
           image: docker.io/busybox:latest
-          {{ end }}
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server",
@@ -45,19 +41,15 @@ spec:
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
             "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
             "/mnt/{{ .Release.Name }}-codium-codium/.aws",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue"
+            "/mnt/{{ .Release.Name }}-codium-codium/.continue",
+            "/mnt/{{ .Release.Name }}-codium-codium/.wakatime"
           ]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: codium
-          {{ if eq .Values.environment "okd" }}
-          image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/codium:latest
-          {{ else }}
-          # image: ghcr.io/alexstorm1313/codium:latest
           image: localhost/workspace-codium-codium:latest
-          {{ end }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
@@ -69,6 +61,12 @@ spec:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/codium/.ssh
               subPath: .ssh
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium/.wakatime
+              subPath: .wakatime
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium/.continue
+              subPath: .continue
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
@@ -92,10 +90,10 @@ spec:
             #   subPath: kube
             #   readOnly: true
 
-            # - name: {{ .Release.Name }}-codium-configmaps
-            #   mountPath: /home/codium/.continue/config.json
-            #   subPath: continue
-            #   readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.continue/config.yaml
+              subPath: continue
+              readOnly: true
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/codium/.gitconfig
               subPath: git
