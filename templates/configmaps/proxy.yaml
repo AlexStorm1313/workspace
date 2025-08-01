@@ -126,6 +126,20 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
+      server_name redis-insight.workspace.localhost redis-insight.workspace.fedora-workstation;
+      
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+        resolver ${NGINX_RESOLVER};
+        include /etc/nginx/includes/proxy.conf;
+        set $upstream http://workspace-redis-insight-pod:5540;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
       server_name open-webui.workspace.localhost open-webui.workspace.fedora-workstation;
 
       include /etc/nginx/includes/ssl.conf;
