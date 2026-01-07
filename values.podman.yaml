@@ -4,6 +4,3 @@ deployments:
     image: localhost
     pullPolicy: IfNotPresent
   volumes:
-    - automtr-api
-    - automtr-interface
-    - automtr-ant

@@ -128,12 +128,6 @@ spec:
                 path: default.conf.template
               - key: workspace
                 path: workspace.conf.template
-              - key: alexbrasser
-                path: alexbrasser.conf.template
-              - key: appfusion
-                path: appfusion.conf.template
-              - key: automtr
-                path: automtr.conf.template
         - name: {{ .Release.Name }}-proxy-nginx
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-proxy-nginx

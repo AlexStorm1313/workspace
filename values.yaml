@@ -1,10 +1,7 @@
 devmode: false
 services:
   - codium
-  # - theia
   - dbgate
   - redis-insight
   - open-webui
   - ollama
-  # - chromium
-  # - penpot

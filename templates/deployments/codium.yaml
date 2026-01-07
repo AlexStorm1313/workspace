@@ -49,7 +49,7 @@ spec:
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: codium
-          image: localhost/workspace-codium-codium:latest
+          image: ghcr.io/alexstorm1313/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
@@ -76,14 +76,6 @@ spec:
             - name: {{ .Release.Name }}-codium-secrets
               mountPath: /home/codium/.ssh/privatekey
               subPath: ssh
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/codium/.wakatime.cfg
-              subPath: wakatime
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/codium/.aws/credentials
-              subPath: aws
               readOnly: true
             # - name: {{ .Release.Name }}-codium-secrets
             #   mountPath: /home/codium/.kube/config

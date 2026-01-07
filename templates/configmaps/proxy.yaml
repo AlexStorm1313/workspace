@@ -84,7 +84,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name localhost fedora-workstation;
+      server_name localhost;
 
       include /etc/nginx/includes/ssl.conf;
 
@@ -98,7 +98,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name codium.workspace.localhost codium.workspace.fedora-workstation;
+      server_name codium.workspace.localhost
     
       include /etc/nginx/includes/ssl.conf;
 
@@ -112,7 +112,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name dbgate.workspace.localhost dbgate.workspace.fedora-workstation;
+      server_name dbgate.workspace.localhost
       
       include /etc/nginx/includes/ssl.conf;
 
@@ -126,7 +126,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name redis-insight.workspace.localhost redis-insight.workspace.fedora-workstation;
+      server_name redis-insight.workspace.localhost
       
       include /etc/nginx/includes/ssl.conf;
 
@@ -140,7 +140,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name open-webui.workspace.localhost open-webui.workspace.fedora-workstation;
+      server_name open-webui.workspace.localhost
 
       include /etc/nginx/includes/ssl.conf;
 
@@ -154,7 +154,7 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
-      server_name ollama.workspace.localhost ollama.workspace.fedora-workstation;
+      server_name ollama.workspace.localhost
 
       include /etc/nginx/includes/ssl.conf;
 
@@ -162,120 +162,5 @@ data:
         resolver ${NGINX_RESOLVER};
         include /etc/nginx/includes/proxy.conf;
         set $upstream http://workspace-ollama-pod:11434;
-      }
-    }
-
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name theia.workspace.localhost theia.workspace.fedora-workstation;
-    
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://workspace-theia-pod:3000;
-      }
-    }
-
-  alexbrasser: |
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name website.alexbrasser.localhost website.alexbrasser.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://alexbrasser-website-pod:3000;
-      }
-    }
-
-  appfusion: |
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name appfusion.localhost appfusion.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://appfusion-dashboard-pod:3000;
-      }
-    }
-
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name *.appfusion.localhost *.appfusion.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://appfusion-dashboard-pod:3000;
-      }
-    }
-
-  automtr: |
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name ant-api.automtr.localhost ant-api.automtr.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-ant-api-proxy-pod:3000;
-      }
-    }
-
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name api.automtr.localhost api.automtr.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-api-pod:3000;
-      }
-    }
-
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name automtr.localhost automtr.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-interface-pod:3000;
-      }
-    }
-
-    server {
-      include /etc/nginx/includes/listen.conf;
-
-      server_name *.localhost *.fedora-workstation;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          resolver ${NGINX_RESOLVER};
-          include /etc/nginx/includes/proxy.conf;
-          set $upstream http://automtr-interface-pod:3000;
       }
     }
