@@ -18,7 +18,7 @@ play:
 
 # Stop the deployment with Podman
 down:
-	podman kube down --force kube.yaml
+	podman kube down kube.yaml
 
 # Build containers, Generate deployment and Run the deployment with Podman
 workspace:

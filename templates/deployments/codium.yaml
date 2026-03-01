@@ -5,8 +5,6 @@ metadata:
   name: {{ .Release.Name }}-codium
   labels:
     app: {{ .Release.Name }}-codium
-  annotations:
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag","name": "codium:latest",},"fieldPath": "spec.template.spec.containers[?(@.name==\"codium\")].image"},]'
 spec:
   {{ if .Values.devmode }}
   strategy:
@@ -19,85 +17,61 @@ spec:
   template:
     metadata:
       annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-codium
         deployment: {{ .Release.Name }}-codium
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
-      initContainers:
-        - name: volume
-          image: docker.io/busybox:latest
-          command: ["/bin/mkdir"]
-          args: ["-p",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/CachedProfilesData",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/Machine",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/User",
-            "/mnt/{{ .Release.Name }}-codium-codium/.openvscode-server/data/logs",
-            "/mnt/{{ .Release.Name }}-codium-codium/.cache",
-            "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
-            "/mnt/{{ .Release.Name }}-codium-codium/.aws",
-            "/mnt/{{ .Release.Name }}-codium-codium/.continue",
-            "/mnt/{{ .Release.Name }}-codium-codium/.wakatime"
-          ]
-          volumeMounts:
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: codium
-          image: ghcr.io/alexstorm1313/codium:latest
+          image: localhost/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
           volumeMounts:
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/codium/.openvscode-server
-              subPath: .openvscode-server
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/codium/.cache
-              subPath: .cache
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/codium/.ssh
-              subPath: .ssh
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/codium/.wakatime
-              subPath: .wakatime
-            - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/codium/.continue
-              subPath: .continue
+            # - name: {{ .Release.Name }}-codium-codium
+            #   mountPath: /home/codium
+            # - name: {{ .Release.Name }}-codium-codium
+            #   mountPath: /home/codium/.cache
+            #   subPath: .cache
+            # - name: {{ .Release.Name }}-codium-codium
+            #   mountPath: /home/codium/.ssh
+            #   subPath: .ssh
+            # - name: {{ .Release.Name }}-codium-codium
+            #   mountPath: /home/codium/.wakatime
+            #   subPath: .wakatime
+            # - name: {{ .Release.Name }}-codium-codium
+            #   mountPath: /home/codium/.continue
+            #   subPath: .continue
 
-            {{ range .Values.deployments.volumes }}
-            - name: {{ . }}
-              mountPath: /home/codium/workspace/{{ . }}
-            {{ end }}
+            # {{ range .Values.deployments.volumes }}
+            # - name: {{ . }}
+            #   mountPath: /home/codium/workspace/{{ . }}
+            # {{ end }}
 
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/codium/.ssh/privatekey
-              subPath: ssh
-              readOnly: true
             # - name: {{ .Release.Name }}-codium-secrets
-            #   mountPath: /home/codium/.kube/config
-            #   subPath: kube
+            #   mountPath: /home/codium/.ssh/privatekey
+            #   subPath: ssh
             #   readOnly: true
+            # # - name: {{ .Release.Name }}-codium-secrets
+            # #   mountPath: /home/codium/.kube/config
+            # #   subPath: kube
+            # #   readOnly: true
 
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.continue/config.yaml
+            #   subPath: continue
+            #   readOnly: true
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.gitconfig
+            #   subPath: git
+            #   readOnly: true
             - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.continue/config.yaml
-              subPath: continue
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.gitconfig
-              subPath: git
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.openvscode-server/data/Machine/settings.json
+              mountPath: /home/codium/.vscodium-server/data/Machine/settings.json
               subPath: codium
               readOnly: true
-            - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.aws/config
-              subPath: awz
-              readOnly: true
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.aws/config
+            #   subPath: awz
+            #   readOnly: true
           livenessProbe:
             httpGet:
               path: /
