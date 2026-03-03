@@ -24,8 +24,8 @@ spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: volumes
-          image: localhost/codium:latest
-          imagePullPolicy: Never
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["bash","-c", "exec"]
           args: ["rsync", "-avh", "--progress", "$HOME/", "/mnt/{{ .Release.Name }}-codium-codium"]
           volumeMounts:
@@ -34,8 +34,8 @@ spec:
       containers:
         - name: codium
           {{ include "container.securityContext" . | indent 10 }}
-          image: localhost/codium:latest
-          imagePullPolicy: Never
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
