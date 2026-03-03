@@ -16,7 +16,6 @@ down:
 
 # Build containers, Generate deployment and Run the deployment with Podman
 workspace:
-	@make build
 	@make kube
 	@make play
 
