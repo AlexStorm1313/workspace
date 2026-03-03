@@ -22,55 +22,64 @@ spec:
         deployment: {{ .Release.Name }}-codium
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volumes
+          image: localhost/codium:latest
+          imagePullPolicy: Never
+          command: ["bash","-c", "exec"]
+          args: ["rsync", "-avh", "--progress", "$HOME/", "/mnt/{{ .Release.Name }}-codium-codium"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: codium
+          {{ include "container.securityContext" . | indent 10 }}
           image: localhost/codium:latest
-          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}                     
+          imagePullPolicy: Never
+          env:
           volumeMounts:
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/codium
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/codium/.cache
-            #   subPath: .cache
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/codium/.ssh
-            #   subPath: .ssh
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/codium/.wakatime
-            #   subPath: .wakatime
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/codium/.continue
-            #   subPath: .continue
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/codium
 
-            # {{ range .Values.deployments.volumes }}
-            # - name: {{ . }}
-            #   mountPath: /home/codium/workspace/{{ . }}
-            # {{ end }}
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/codium/workspace/{{ . }}
+            {{ end }}
 
-            # - name: {{ .Release.Name }}-codium-secrets
-            #   mountPath: /home/codium/.ssh/privatekey
-            #   subPath: ssh
-            #   readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.ssh/id_privatekey
+              subPath: ssh
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/codium/.wakatime.cfg
+              subPath: wakatime
+              readOnly: true
             # # - name: {{ .Release.Name }}-codium-secrets
             # #   mountPath: /home/codium/.kube/config
             # #   subPath: kube
             # #   readOnly: true
 
-            # - name: {{ .Release.Name }}-codium-configmaps
-            #   mountPath: /home/codium/.continue/config.yaml
-            #   subPath: continue
-            #   readOnly: true
-            # - name: {{ .Release.Name }}-codium-configmaps
-            #   mountPath: /home/codium/.gitconfig
-            #   subPath: git
-            #   readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.cline/data/globalState.json
+              subPath: cline
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.continue/config.yaml
+              subPath: continue
+              readOnly: true
+      
+            - name: {{ .Release.Name }}-codium-configmaps
+              mountPath: /home/codium/.gitconfig
+              subPath: git
+              readOnly: true
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/codium/.vscodium-server/data/Machine/settings.json
               subPath: codium
               readOnly: true
+            
             # - name: {{ .Release.Name }}-codium-configmaps
             #   mountPath: /home/codium/.aws/config
-            #   subPath: awz
+            #   subPath: aws
             #   readOnly: true
           livenessProbe:
             httpGet:
@@ -93,7 +102,7 @@ spec:
         - name: {{ .Release.Name }}-codium-codium
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-codium-codium
-        
+
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
           persistentVolumeClaim:

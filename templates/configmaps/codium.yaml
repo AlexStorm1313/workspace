@@ -3,8 +3,28 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-codium
 data:
+  cline: |
+    {
+      "welcomeViewCompleted": true,
+      "__vscodeMigrationVersion": 1,
+      "clineVersion": "3.68.0",
+      "remoteRulesToggles": {},
+      "remoteWorkflowToggles": {},
+      "lastShownAnnouncementId": "3.68",
+      "openAiHeaders": {},
+      "sapAiCoreUseOrchestrationMode": true,
+      "ocaMode": "internal",
+      "planModeApiProvider": "ollama",
+      "actModeApiProvider": "ollama",
+      "ollamaBaseUrl": "http://workspace-ollama-pod:11434",
+      "ollamaApiOptionsCtxNum": "32768",
+      "requestTimeoutMs": 30000,
+      "planModeOllamaModelId": "llama3.2:latest",
+      "actModeOllamaModelId": "llama3.2:latest"
+    }
+
   continue: |
-    name: Local Assistant
+    name: Local Config
     version: 1.0.0
     schema: v1
     models:
@@ -76,6 +96,6 @@ data:
       ]
     }
 
-  awz: |
+  aws: |
     [default]
     region = eu-central-1
