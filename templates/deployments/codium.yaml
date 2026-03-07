@@ -24,10 +24,46 @@ spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
         - name: volumes
+          {{ include "container.securityContext" . | indent 10 }}
           image: ghcr.io/alexstorm1313/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["bash","-c", "exec"]
-          args: ["rsync", "-avh", "--progress", "$HOME", "/mnt/{{ .Release.Name }}-codium-codium"]
+          env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
+          command: ["rsync","-avh"]
+          args: [
+              "/home/codium/","/mnt/{{ .Release.Name }}-codium-codium/",
+            ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
+        - name: directories
+          {{ include "container.securityContext" . | indent 10 }}
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
+          command: ["mkdir","-p"]
+          args: [
+              "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
+              "/mnt/{{ .Release.Name }}-codium-codium/.cline",
+              "/mnt/{{ .Release.Name }}-codium-codium/.continue",
+            ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
+        - name: extensions
+          {{ include "container.securityContext" . | indent 10 }}
+          image: ghcr.io/alexstorm1313/codium:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
+          command: ["codium","--user-data-dir","/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/data","--extensions-dir","/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/extensions"]
+          args: [
+              "--install-extension","DEVSENSE.phptools-vscode",
+            ]
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /mnt/{{ .Release.Name }}-codium-codium
@@ -37,6 +73,8 @@ spec:
           image: ghcr.io/alexstorm1313/codium:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
+            - name: DONT_PROMPT_WSL_INSTALL
+              value: true
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/codium
