@@ -47,7 +47,7 @@ spec:
           command: ["mkdir","-p"]
           args: [
               "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
-              "/mnt/{{ .Release.Name }}-codium-codium/.cline",
+              "/mnt/{{ .Release.Name }}-codium-codium/.cline/data",
               "/mnt/{{ .Release.Name }}-codium-codium/.continue",
             ]
           volumeMounts:

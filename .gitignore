@@ -19,6 +19,7 @@ Thumbs.db
 
 # Deployment
 containers/*
+secrets/*
 templates/secrets/*.yaml
 templates/configmaps/*.yaml
 

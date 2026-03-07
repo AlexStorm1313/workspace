@@ -1,10 +1,10 @@
-.PHONY: build kube play down workspace install upgrade uninstall cert
+.PHONY: build kube play down workspace install upgrade uninstall certificate trust
 
 NAMESPACE=workspace
 
 # Generate deployment from Helm Chart
 kube:
-	@podman run --privileged -it --rm -v ./:/apps -w /apps docker.io/alpine/helm:latest template ${NAMESPACE} --dry-run --values values.yaml --values values.podman.yaml . > kube.yaml
+	@podman run --privileged -it --rm -v ./:/apps -w /apps docker.io/alpine/helm:latest template ${NAMESPACE} --dry-run=client --values values.yaml --values values.podman.yaml . > kube.yaml
 
 # Run the deployment with Podman
 play:
@@ -19,6 +19,13 @@ workspace:
 	@make kube
 	@make play
 
-# Copy the certificate from the proxy container
-cert:
-	@podman cp ${NAMESPACE}-proxy-pod-proxy:/etc/nginx/certificates/certificate.crt ./secret
+# Generate a Certificate
+certificate:
+	podman run -it --rm \
+	-e DOMAIN=localhost \
+	-e COUNTRY=US \
+	-e STATE=workspace \
+	-e CITY=workspace \
+	-e ORGANIZATION=workspace \
+	-v ./secrets:/certs:Z \
+	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"

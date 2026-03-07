@@ -25,37 +25,6 @@ spec:
         deployment: {{ .Release.Name }}-proxy
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
-      initContainers:
-        - name: volume
-          image: docker.io/busybox:latest
-          command: ["/bin/mkdir"]
-          args: ["-p",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/nginx",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/run",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/certificates",
-          ]
-          volumeMounts:
-            - name: {{ .Release.Name }}-proxy-nginx
-              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
-        - name: openssl
-          image: docker.io/alpine/openssl:latest
-          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          env:
-            - name: DOMAIN
-              value: localhost
-            - name: COUNTRY
-              value: US
-            - name: STATE
-              value: workspace
-            - name: CITY
-              value: workspace
-            - name: ORGANIZATION
-              value: workspace
-          args: ["req", "-x509", "-noenc", "-days", "365", "-newkey", "rsa:2048", "-keyout", "/etc/nginx/certificates/private.key", "-out", "/etc/nginx/certificates/certificate.crt", "-subj", "/C=$(COUNTRY)/ST=$(STATE)/L=$(CITY)/O=$(ORGANIZATION)/CN=$(DOMAIN)","-addext", "subjectAltName=DNS:$(DOMAIN),DNS:*.$(DOMAIN)"]
-          volumeMounts:
-            - name: {{ .Release.Name }}-proxy-certificates
-              mountPath: /etc/nginx/certificates
       containers:
         - name: nginx
           {{ include "container.securityContext" . | indent 10 }}
@@ -80,12 +49,13 @@ spec:
               mountPath: /etc/nginx/conf.d
               subPath: conf.d
 
+            - name: {{ .Release.Name }}-proxy-secret
+              mountPath: /etc/nginx/certificates
+
             - name: {{ .Release.Name }}-proxy-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx
 
-            - name: {{ .Release.Name }}-proxy-certificates
-              mountPath: /etc/nginx/certificates
             - name: {{ .Release.Name }}-proxy-includes
               mountPath: /etc/nginx/includes
             - name: {{ .Release.Name }}-proxy-templates
@@ -99,9 +69,14 @@ spec:
               path: /
               port: 8080
       volumes:
-        - name: {{ .Release.Name }}-proxy-certificates
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-proxy-certificates
+        - name: {{ .Release.Name }}-proxy-secret
+          secret:
+            secretName: {{ .Release.Name }}-proxy
+            items:
+              - key: tls.crt
+                path: certificate.crt
+              - key: tls.key
+                path: private.key
 
         - name: {{ .Release.Name }}-proxy-config
           configMap:
