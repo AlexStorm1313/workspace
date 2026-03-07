@@ -1,4 +1,4 @@
-.PHONY: build kube play down workspace install upgrade uninstall certificate trust
+.PHONY: build kube play down workspace install upgrade uninstall certificate
 
 NAMESPACE=workspace
 
