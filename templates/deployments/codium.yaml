@@ -75,6 +75,8 @@ spec:
           env:
             - name: DONT_PROMPT_WSL_INSTALL
               value: true
+            - name: CONTAINER_HOST
+              value: tcp://host.containers.internal:2375
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/codium
@@ -97,14 +99,14 @@ spec:
             # #   subPath: kube
             # #   readOnly: true
 
-            - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.cline/data/globalState.json
-              subPath: cline
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-configmaps
-              mountPath: /home/codium/.continue/config.yaml
-              subPath: continue
-              readOnly: true
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.cline/data/globalState.json
+            #   subPath: cline
+            #   readOnly: true
+            # - name: {{ .Release.Name }}-codium-configmaps
+            #   mountPath: /home/codium/.continue/config.yaml
+            #   subPath: continue
+            #   readOnly: true
       
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/codium/.gitconfig

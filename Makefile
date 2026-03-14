@@ -21,7 +21,7 @@ workspace:
 
 # Generate a Certificate
 certificate:
-	podman run -it --rm \
+	@podman run -it --rm \
 	-e DOMAIN=localhost \
 	-e COUNTRY=US \
 	-e STATE=workspace \
@@ -29,3 +29,6 @@ certificate:
 	-e ORGANIZATION=workspace \
 	-v ./secrets:/certs:Z \
 	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
+
+expose-podman-api:
+	@podman system service --time=0 tcp://0.0.0.0:2375

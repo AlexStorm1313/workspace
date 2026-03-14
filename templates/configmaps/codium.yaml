@@ -93,7 +93,8 @@ data:
       "aws.telemetry": false,
       "yaml.customTags": [
         "!*"
-      ]
+      ],
+      "containers.containerClient": "com.microsoft.visualstudio.containers.podman"
     }
 
   aws: |

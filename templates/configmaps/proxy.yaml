@@ -133,6 +133,20 @@ data:
     server {
       include /etc/nginx/includes/listen.conf;
 
+      server_name codex.codium.workspace.localhost codex.codium.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-codium-pod:1455;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
       server_name dbgate.workspace.localhost dbgate.workspace.fedora-workstation;
       
       include /etc/nginx/includes/ssl.conf;
