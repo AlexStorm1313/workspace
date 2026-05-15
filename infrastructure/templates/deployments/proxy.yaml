@@ -25,14 +25,23 @@ spec:
         deployment: {{ .Release.Name }}-proxy
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/nginx",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/run",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
       containers:
         - name: nginx
           {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/nginx:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          env:
-            - name: NGINX_RESOLVER
-              value: 10.89.0.1
           ports:
             - containerPort: 8080
               hostPort: 8080
@@ -99,10 +108,22 @@ spec:
             name: {{ .Release.Name }}-proxy
             optional: true
             items:
-              - key: default
+              - key: default.conf
                 path: default.conf.template
-              - key: workspace
-                path: workspace.conf.template
+              - key: codium.conf
+                path: codium.conf.template
+              - key: dbgate.conf
+                path: dbgate.conf.template
+              - key: ollama.conf
+                path: ollama.conf.template
+              - key: open-webui.conf
+                path: open-webui.conf.template
+              - key: openclaw.conf
+                path: openclaw.conf.template
+              - key: opencode.conf
+                path: opencode.conf.template
+              - key: redis-insight.conf
+                path: redis-insight.conf.template
 
         - name: {{ .Release.Name }}-proxy-nginx
           persistentVolumeClaim:

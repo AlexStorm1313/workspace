@@ -36,16 +36,13 @@ spec:
                 sleep 1
               done
               ollama pull gemma4:latest
-          # command: ["ollama"]
-          # args: ["pull", "gemma4:latest"]
-          # Required for GPU passthrough
           securityContext:
             privileged: true
           volumeMounts:
             - name: {{ .Release.Name }}-ollama-ollama
               mountPath: /root/.ollama
       containers:
-        - name: ollama
+        - name: server
           image: docker.io/ollama/ollama:rocm
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:

@@ -22,6 +22,19 @@ spec:
         deployment: {{ .Release.Name }}-opencode
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-opencode-opencode/.local",
+            "/mnt/{{ .Release.Name }}-opencode-opencode/.cache",
+            "/mnt/{{ .Release.Name }}-opencode-opencode/.config",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-opencode-opencode
+              mountPath: /mnt/{{ .Release.Name }}-opencode-opencode
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
@@ -32,6 +45,13 @@ spec:
           volumeMounts:
             - name: {{ .Release.Name }}-opencode-opencode
               mountPath: /home/core/.local
+              subPath: .local
+            - name: {{ .Release.Name }}-opencode-opencode
+              mountPath: /home/core/.cache
+              subPath: .cache
+            - name: {{ .Release.Name }}-opencode-opencode
+              mountPath: /home/core/.config
+              subPath: .config
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}

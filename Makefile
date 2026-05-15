@@ -1,4 +1,4 @@
-.PHONY: build kube play down workspace install upgrade uninstall certificate credentials
+.PHONY: build kube play down workspace install upgrade uninstall tls auth-codex
 
 NAMESPACE=workspace
 
@@ -27,7 +27,7 @@ jappa:
 	@cp ~/.ssh/id_ed25519 ./shared/secrets/codium/id_privatekey
 
 # Generate a Certificate
-certificate:
+tls:
 	@podman run -it --rm \
 	-e DOMAIN=localhost \
 	-e COUNTRY=US \
@@ -37,7 +37,7 @@ certificate:
 	-v ./secrets:/certs:Z \
 	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
 
-credentials:
+auth-codex:
 	@podman run --rm -it \
 	--name codex-debug \
 	-p 1455:1455 \

@@ -22,6 +22,21 @@ spec:
         deployment: {{ .Release.Name }}-codium
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-codium-codium/.vscode-oss",
+            "/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server",
+            "/mnt/{{ .Release.Name }}-codium-codium/.local",
+            "/mnt/{{ .Release.Name }}-codium-codium/.cache",
+            "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /mnt/{{ .Release.Name }}-codium-codium
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
@@ -35,8 +50,21 @@ spec:
             - name: CONTAINER_HOST
               value: tcp://host.containers.internal:2375
           volumeMounts:
-            # - name: {{ .Release.Name }}-codium-codium
-            #   mountPath: /home/core
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/core/.vscode-oss
+              subPath: .vscode-oss
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/core/.vscodium-server
+              subPath: .vscodium-server
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/core/.local
+              subPath: .local
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/core/.cache
+              subPath: .cache
+            - name: {{ .Release.Name }}-codium-codium
+              mountPath: /home/core/.ssh
+              subPath: .ssh
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
