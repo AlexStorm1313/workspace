@@ -19,6 +19,7 @@ Thumbs.db
 
 # Deployment
 secrets/*
+!secrets/.gitkeep
 templates/secrets/*.yaml
 
 kube.yaml
