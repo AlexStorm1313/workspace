@@ -29,7 +29,8 @@ spec:
           command: ["/bin/mkdir"]
           args: ["-p",
             "/mnt/{{ .Release.Name }}-codium-codium/.vscode-oss",
-            "/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server",
+            "/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/data",
+            "/mnt/{{ .Release.Name }}-codium-codium/.vscodium-server/data/Machine",
             "/mnt/{{ .Release.Name }}-codium-codium/.local",
             "/mnt/{{ .Release.Name }}-codium-codium/.cache",
             "/mnt/{{ .Release.Name }}-codium-codium/.ssh",
@@ -54,8 +55,8 @@ spec:
               mountPath: /home/core/.vscode-oss
               subPath: .vscode-oss
             - name: {{ .Release.Name }}-codium-codium
-              mountPath: /home/core/.vscodium-server
-              subPath: .vscodium-server
+              mountPath: /home/core/.vscodium-server/data
+              subPath: .vscodium-server/data
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/core/.local
               subPath: .local

@@ -14,6 +14,7 @@ play:
 # Stop the deployment with Podman
 down:
 	@podman kube down ./infrastructure/kube.yaml
+	@podman volume rm ${NAMESPACE}-proxy
 
 # Build containers, Generate deployment and Run the deployment with Podman
 workspace:

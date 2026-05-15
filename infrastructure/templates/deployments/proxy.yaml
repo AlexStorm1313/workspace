@@ -26,7 +26,18 @@ spec:
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
+        - name: rm
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/busybox:latest
+          command: ["/bin/rm"]
+          args: ["-rf",
+            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
         - name: volume
+          {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/busybox:latest
           command: ["/bin/mkdir"]
           args: ["-p",
