@@ -30,8 +30,8 @@ spec:
           command: ["tini", "--"]
           args: ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
           volumeMounts:
-            # - name: {{ .Release.Name }}-opencode-opencode
-            #   mountPath: /home/core
+            - name: {{ .Release.Name }}-opencode-opencode
+              mountPath: /home/core/.local
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
@@ -40,16 +40,20 @@ spec:
 
             - name: {{ .Release.Name }}-opencode-configmaps
               mountPath: /home/core/.config/opencode/opencode.json
-              subPath: opencode.json       
+              subPath: opencode.json
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
-          # readinessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
+            - name: {{ .Release.Name }}-opencode-secrets
+              mountPath: /home/core/.codex/auth.json
+              subPath: auth.json
+
+          livenessProbe:
+            httpGet:
+              path: /global/health
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: /global/health
+              port: 3000
         # - name: opencode-acp
         #   image: ghcr.io/anomalyco/opencode:beta
         #   imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
@@ -69,6 +73,10 @@ spec:
             #   mountPath: /home/core/.config/opencode/opencode.json
             #   subPath: opencode.json
       volumes:
+        - name: {{ .Release.Name }}-opencode-secrets
+          secret:
+            secretName: {{ .Release.Name }}-opencode
+            optional: true
         - name: {{ .Release.Name }}-opencode-configmaps
           configMap:
             name: {{ .Release.Name }}-opencode

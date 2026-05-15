@@ -29,7 +29,6 @@ spec:
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
           args: ["codium", "serve-web", "--host", "0.0.0.0", "--port", "3000", "--without-connection-token"]
-          # args: ["/bin/sh", "-c", "exec codium serve-web --host 0.0.0.0 --port 3000 --without-connection-token"]
           env:
             - name: DONT_PROMPT_WSL_INSTALL
               value: true
@@ -44,15 +43,6 @@ spec:
               mountPath: /home/core/workspace/{{ . }}
             {{ end }}
 
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.ssh/id_privatekey
-              subPath: id_privatekey
-              readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.wakatime.cfg
-              subPath: wakatime.cfg
-              readOnly: true
-      
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
@@ -61,11 +51,23 @@ spec:
               mountPath: /home/core/.vscodium-server/data/Machine/settings.json
               subPath: settings.json
               readOnly: true
-            
             # - name: {{ .Release.Name }}-codium-configmaps
             #   mountPath: /home/core/.aws/config
             #   subPath: aws
             #   readOnly: true
+
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/core/.ssh/id_privatekey
+              subPath: id_privatekey
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/core/.wakatime.cfg
+              subPath: wakatime.cfg
+              readOnly: true
+            - name: {{ .Release.Name }}-codium-secrets
+              mountPath: /home/core/.codex/auth.json
+              subPath: auth.json
+
           livenessProbe:
             httpGet:
               path: /

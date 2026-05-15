@@ -4,7 +4,7 @@ NAMESPACE=workspace
 
 # Generate deployment from Helm Chart
 kube:
-	@podman run -it --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure docker.io/alpine/helm:latest template ${NAMESPACE} --dry-run=client --values values.yaml . > ./infrastructure/kube.yaml
+	@podman run -it --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure docker.io/alpine/helm:latest template ${NAMESPACE} --dry-run=client --values ./values.yaml . > ./infrastructure/kube.yaml
 
 # Run the deployment with Podman
 play:
@@ -22,7 +22,6 @@ workspace:
 
 expose-podman-api:
 	@podman system service --time=0 tcp://0.0.0.0:2375
-
 
 jappa:
 	@cp ~/.ssh/id_ed25519 ./shared/secrets/codium/id_privatekey
@@ -42,10 +41,9 @@ credentials:
 	@podman run --rm -it \
 	--name codex-debug \
 	-p 1455:1455 \
-	--entrypoint /bin/bash \
 	--user 0:0 \
-	-v ./:/home/kasm-user/.codex:Z \
-	docker.io/kasmweb/codex-cli:1.18.0-rolling-daily
+	-v ./infrastructure/secrets/codex:/workspace/.config/codex:Z \
+	docker.io/photoprism/codex:latest
 
 opencode:
 	@podman exec -it workspace-opencode-pod-opencode-server opencode
