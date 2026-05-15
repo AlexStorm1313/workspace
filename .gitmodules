@@ -1,0 +1,3 @@
+[submodule "containers/core"]
+	path = containers/core
+	url = git@github.com:AlexStorm1313/core.git

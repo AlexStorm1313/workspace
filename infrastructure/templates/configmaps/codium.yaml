@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-codium
+data:
+  .gitconfig: |
+{{ .Files.Get "configs/codium/.gitconfig" | nindent 4 }}
+  settings.json: |
+{{ .Files.Get "configs/codium/settings.json" | nindent 4 }}

@@ -1,0 +1,72 @@
+{{ if has "open-webui" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-open-webui
+  labels:
+    app: {{ .Release.Name }}-open-webui
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-open-webui
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-open-webui
+        deployment: {{ .Release.Name }}-open-webui
+    spec:
+      {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-open-webui-open-webui/data",
+            "/mnt/{{ .Release.Name }}-open-webui-open-webui/static",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /mnt/{{ .Release.Name }}-open-webui-open-webui
+      containers:
+        - name: open-webui
+          {{ include "container.securityContext" . | indent 10 }}
+          image: ghcr.io/open-webui/open-webui:main
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: OLLAMA_BASE_URL
+              value: http://workspace-ollama-pod:11434
+            - name: WEBUI_SECRET_KEY
+              value: secret
+            - name: WEBUI_AUTH
+              value: "false"
+            - name: ENV
+              value: "dev"
+          volumeMounts:
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /app/backend/data
+              subPath: data
+            - name: {{ .Release.Name }}-open-webui-open-webui
+              mountPath: /app/backend/open_webui/static
+              subPath: static
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
+      volumes:       
+        - name: {{ .Release.Name }}-open-webui-open-webui
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-open-webui-open-webui
+{{ end }}

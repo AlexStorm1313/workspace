@@ -1,0 +1,27 @@
+{
+    "editor.fontFamily": "Fira Code Retina",
+    "editor.fontLigatures": true,
+    "editor.formatOnSave": true,
+    "editor.inlineSuggest.syntaxHighlightingEnabled": true,
+    "files.autoSave": "onWindowChange",
+    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.startupEditor": "none",
+    "workbench.editor.enablePreview": false,
+    "workbench.layoutControl.enabled": false,
+    "redhat.telemetry.enabled": false,
+    "workbench.panel.defaultLocation": "left",
+    "explorer.confirmDragAndDrop": false,
+    "explorer.compactFolders": false,
+    "git.enableSmartCommit": true,
+    "terminal.integrated.tabs.enabled": false,
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.cursorBlinking": true,
+    "window.commandCenter": false,
+    "continue.telemetryEnabled": false,
+    "errorLens.messageEnabled": true,
+    "aws.telemetry": false,
+    "yaml.customTags": [
+        "!*"
+    ],
+    "containers.containerClient": "com.microsoft.visualstudio.containers.podman"
+}

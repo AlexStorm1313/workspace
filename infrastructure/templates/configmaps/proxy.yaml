@@ -1,0 +1,169 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-proxy
+data:
+  nginx.conf: |
+{{ .Files.Get "configs/proxy/nginx.conf" | nindent 4 }}
+  listen.conf: |
+{{ .Files.Get "configs/proxy/listen.conf" | nindent 4 }}
+  proxy.conf: |
+{{ .Files.Get "configs/proxy/proxy.conf" | nindent 4 }}
+  ssl.conf: |
+{{ .Files.Get "configs/proxy/ssl.conf" | nindent 4 }} 
+  
+  default: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name localhost fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          root   /usr/share/nginx/html;
+          index  index.html index.htm;
+      }
+    }
+
+  workspace: |
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name codium.workspace.localhost codium.workspace.fedora-workstation;
+    
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-codium-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name codex.codium.workspace.localhost codex.codium.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-codium-pod:1455;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name opencode.workspace.localhost opencode.workspace.fedora-workstation;
+    
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-opencode-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name codex.opencode.workspace.localhost codex.opencode.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-opencode-pod:1455;
+      }
+    }
+
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name openclaw.workspace.localhost openclaw.workspace.fedora-workstation;
+    
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-openclaw-pod:18789;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name codex.openclaw.workspace.localhost codex.openclaw.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+          resolver ${NGINX_RESOLVER};
+          include /etc/nginx/includes/proxy.conf;
+          set $upstream http://workspace-openclaw-pod:1455;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name dbgate.workspace.localhost dbgate.workspace.fedora-workstation;
+      
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+        resolver ${NGINX_RESOLVER};
+        include /etc/nginx/includes/proxy.conf;
+        set $upstream http://workspace-dbgate-pod:3000;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name redis-insight.workspace.localhost redis-insight.workspace.fedora-workstation;
+      
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+        resolver ${NGINX_RESOLVER};
+        include /etc/nginx/includes/proxy.conf;
+        set $upstream http://workspace-redis-insight-pod:5540;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name open-webui.workspace.localhost open-webui.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+        resolver ${NGINX_RESOLVER};
+        include /etc/nginx/includes/proxy.conf;
+        set $upstream http://workspace-open-webui-pod:8080;
+      }
+    }
+
+    server {
+      include /etc/nginx/includes/listen.conf;
+
+      server_name ollama.workspace.localhost ollama.workspace.fedora-workstation;
+
+      include /etc/nginx/includes/ssl.conf;
+
+      location / {
+        resolver ${NGINX_RESOLVER};
+        include /etc/nginx/includes/proxy.conf;
+        set $upstream http://workspace-ollama-pod:11434;
+      }
+    }

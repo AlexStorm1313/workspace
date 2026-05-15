@@ -1,0 +1,51 @@
+{{ if has "redis-insight" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-redis-insight
+  labels:
+    app: {{ .Release.Name }}-redis-insight
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-redis-insight
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-redis-insight
+        deployment: {{ .Release.Name }}-redis-insight
+    spec:
+      {{ include "pod.securityContext" . | indent 6 }}
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-redis-insight/data",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-redis-insight
+              mountPath: /mnt/{{ .Release.Name }}-redis-insight
+      containers:
+        - name: redis-insight
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/redis/redisinsight:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-redis-insight
+              mountPath: /data
+              subPath: data
+      volumes:
+        - name: {{ .Release.Name }}-redis-insight
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-redis-insight
+{{ end }}

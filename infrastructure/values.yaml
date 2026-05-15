@@ -1,0 +1,18 @@
+environment: podman
+devmode: false
+deployments:
+  containers:
+    image: localhost
+    pullPolicy: IfNotPresent
+    # pullPolicy: Always
+  volumes:
+    - wordpress-cms-wordpress
+services:
+  - codium
+  # - openclaw
+  - opencode
+  # - dbgate
+  # - redis-insight
+  # - open-webui
+  # - ollama
+  # - figma

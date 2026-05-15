@@ -1,0 +1,67 @@
+{{ if has "ollama" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ollama
+  labels:
+    app: {{ .Release.Name }}-ollama
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-ollama
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-ollama
+        deployment: {{ .Release.Name }}-ollama
+    spec:
+      initContainers: 
+        - name: pull
+          image: docker.io/ollama/ollama:rocm
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              ollama serve &
+              until ollama list >/dev/null 2>&1; do
+                sleep 1
+              done
+              ollama pull gemma4:latest
+          # command: ["ollama"]
+          # args: ["pull", "gemma4:latest"]
+          # Required for GPU passthrough
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: {{ .Release.Name }}-ollama-ollama
+              mountPath: /root/.ollama
+      containers:
+        - name: ollama
+          image: docker.io/ollama/ollama:rocm
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            # - name: OLLAMA_VULKAN
+            #   value: true
+          # Required for GPU passthrough
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: {{ .Release.Name }}-ollama-ollama
+              mountPath: /root/.ollama
+          resources:
+            limits:
+              amd.com/gpu: 1 # requesting 1 GPU
+      volumes:
+        - name: {{ .Release.Name }}-ollama-ollama
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-ollama-ollama
+{{ end }}

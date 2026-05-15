@@ -1,0 +1,86 @@
+{{ if has "opencode" .Values.services }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-opencode
+  labels:
+    app: {{ .Release.Name }}-opencode
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-opencode
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: {{ .Release.Name }}-opencode
+        deployment: {{ .Release.Name }}-opencode
+    spec:
+      {{ include "pod.securityContext" . | indent 6 }}
+      containers:
+        - name: server
+          {{ include "container.securityContext" . | indent 10 }}
+          image: localhost/core:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          command: ["tini", "--"]
+          args: ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
+          volumeMounts:
+            # - name: {{ .Release.Name }}-opencode-opencode
+            #   mountPath: /home/core
+
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/core/workspace/{{ . }}
+            {{ end }}
+
+            - name: {{ .Release.Name }}-opencode-configmaps
+              mountPath: /home/core/.config/opencode/opencode.json
+              subPath: opencode.json       
+
+          # livenessProbe:
+          #   httpGet:
+          #     path: /global/health
+          #     port: 3000
+          # readinessProbe:
+          #   httpGet:
+          #     path: /global/health
+          #     port: 3000
+        # - name: opencode-acp
+        #   image: ghcr.io/anomalyco/opencode:beta
+        #   imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+        #   command: ["opencode"]
+        #   args: ["acp", "--hostname", "0.0.0.0", "--port", "4096"]
+        #   workingDir: /home/core
+        #   volumeMounts:
+        #     - name: {{ .Release.Name }}-opencode-opencode
+        #       mountPath: /home/core
+
+        #     {{ range .Values.deployments.volumes }}
+        #     - name: {{ . }}
+        #       mountPath: /home/core/workspace/{{ . }}
+        #     {{ end }}
+
+            # - name: {{ .Release.Name }}-opencode-configmaps
+            #   mountPath: /home/core/.config/opencode/opencode.json
+            #   subPath: opencode.json
+      volumes:
+        - name: {{ .Release.Name }}-opencode-configmaps
+          configMap:
+            name: {{ .Release.Name }}-opencode
+            optional: true
+
+        - name: {{ .Release.Name }}-opencode-opencode
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-opencode-opencode
+
+        {{ range .Values.deployments.volumes }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ . }}
+        {{ end }}
+{{ end }}

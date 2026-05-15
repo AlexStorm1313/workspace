@@ -1,0 +1,110 @@
+{{ if eq .Values.environment "podman" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-proxy
+  labels:
+    app: {{ .Release.Name }}-proxy
+spec:
+  {{ if .Values.devmode }}
+  strategy:
+    type: Recreate
+  {{ end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-proxy
+  template:
+    metadata:
+      annotations:
+      {{ if .Values.devmode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      {{ end }}
+      labels:
+        app: {{ .Release.Name }}-proxy
+        deployment: {{ .Release.Name }}-proxy
+    spec:
+      {{ include "pod.securityContext" . | indent 6 }}
+      containers:
+        - name: nginx
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/nginx:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: NGINX_RESOLVER
+              value: 10.89.0.1
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+            - containerPort: 8443
+              hostPort: 8443
+          volumeMounts:
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /var/cache/nginx
+              subPath: nginx
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /var/run
+              subPath: run
+            - name: {{ .Release.Name }}-proxy-nginx
+              mountPath: /etc/nginx/conf.d
+              subPath: conf.d
+
+            - name: {{ .Release.Name }}-proxy-secret
+              mountPath: /etc/nginx/certificates
+
+            - name: {{ .Release.Name }}-proxy-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+
+            - name: {{ .Release.Name }}-proxy-includes
+              mountPath: /etc/nginx/includes
+            - name: {{ .Release.Name }}-proxy-templates
+              mountPath: /etc/nginx/templates
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+      volumes:
+        - name: {{ .Release.Name }}-proxy-secret
+          secret:
+            secretName: {{ .Release.Name }}-proxy
+            items:
+              - key: tls.crt
+                path: certificate.crt
+              - key: tls.key
+                path: private.key
+
+        - name: {{ .Release.Name }}-proxy-config
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+
+        - name: {{ .Release.Name }}-proxy-includes
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+            items:
+              - key: listen.conf
+                path: listen.conf
+              - key: proxy.conf
+                path: proxy.conf
+              - key: ssl.conf
+                path: ssl.conf
+        - name: {{ .Release.Name }}-proxy-templates
+          configMap:
+            name: {{ .Release.Name }}-proxy
+            optional: true
+            items:
+              - key: default
+                path: default.conf.template
+              - key: workspace
+                path: workspace.conf.template
+
+        - name: {{ .Release.Name }}-proxy-nginx
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-proxy-nginx
+{{ end }}
