@@ -97,6 +97,9 @@ spec:
               mountPath: /home/core/.codex/auth.json
               subPath: auth.json
 
+            - name: development
+              mountPath: /home/core/Development:z
+
           livenessProbe:
             httpGet:
               path: /
@@ -124,4 +127,9 @@ spec:
           persistentVolumeClaim:
             claimName: {{ . }}
         {{ end }}
+
+        - name: development
+          hostPath:
+            path: /home/alexstorm13/Development
+            type: Directory
 {{ end }}
