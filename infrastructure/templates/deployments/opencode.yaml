@@ -41,7 +41,7 @@ spec:
           image: localhost/core:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
-          args: ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
+          args: ["bunx", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
           volumeMounts:
             - name: {{ .Release.Name }}-opencode-opencode
               mountPath: /home/core/.local

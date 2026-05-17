@@ -6,7 +6,6 @@ deployments:
     pullPolicy: IfNotPresent
     # pullPolicy: Always
   volumes:
-    - wordpress-cms-wordpress
 services:
   - codium
   # - openclaw
