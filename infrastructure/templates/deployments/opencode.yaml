@@ -74,24 +74,7 @@ spec:
             httpGet:
               path: /global/health
               port: 3000
-        # - name: opencode-acp
-        #   image: ghcr.io/anomalyco/opencode:beta
-        #   imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-        #   command: ["opencode"]
-        #   args: ["acp", "--hostname", "0.0.0.0", "--port", "4096"]
-        #   workingDir: /home/core
-        #   volumeMounts:
-        #     - name: {{ .Release.Name }}-opencode-opencode
-        #       mountPath: /home/core
 
-        #     {{ range .Values.deployments.volumes }}
-        #     - name: {{ . }}
-        #       mountPath: /home/core/workspace/{{ . }}
-        #     {{ end }}
-
-            # - name: {{ .Release.Name }}-opencode-configmaps
-            #   mountPath: /home/core/.config/opencode/opencode.json
-            #   subPath: opencode.json
       volumes:
         - name: {{ .Release.Name }}-opencode-secrets
           secret:
