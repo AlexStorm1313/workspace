@@ -23,7 +23,7 @@ spec:
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
-        - name: volume
+        - name: mkdir
           {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/busybox:latest
           command: ["/bin/mkdir"]

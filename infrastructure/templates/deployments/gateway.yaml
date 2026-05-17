@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-proxy
+  name: {{ .Release.Name }}-gateway
   labels:
-    app: {{ .Release.Name }}-proxy
+    app: {{ .Release.Name }}-gateway
 spec:
   {{ if .Values.devmode }}
   strategy:
@@ -13,7 +13,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-proxy
+      app: {{ .Release.Name }}-gateway
   template:
     metadata:
       annotations:
@@ -21,8 +21,8 @@ spec:
         rollme: {{ randAlphaNum 5 | quote }}
       {{ end }}
       labels:
-        app: {{ .Release.Name }}-proxy
-        deployment: {{ .Release.Name }}-proxy
+        app: {{ .Release.Name }}-gateway
+        deployment: {{ .Release.Name }}-gateway
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -31,25 +31,25 @@ spec:
           image: docker.io/busybox:latest
           command: ["/bin/rm"]
           args: ["-rf",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
+            "/mnt/{{ .Release.Name }}-gateway-nginx/conf.d",
           ]
           volumeMounts:
-            - name: {{ .Release.Name }}-proxy-nginx
-              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
+            - name: {{ .Release.Name }}-gateway-nginx
+              mountPath: /mnt/{{ .Release.Name }}-gateway-nginx
         - name: volume
           {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/busybox:latest
           command: ["/bin/mkdir"]
           args: ["-p",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/nginx",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/run",
-            "/mnt/{{ .Release.Name }}-proxy-nginx/conf.d",
+            "/mnt/{{ .Release.Name }}-gateway-nginx/nginx",
+            "/mnt/{{ .Release.Name }}-gateway-nginx/run",
+            "/mnt/{{ .Release.Name }}-gateway-nginx/conf.d",
           ]
           volumeMounts:
-            - name: {{ .Release.Name }}-proxy-nginx
-              mountPath: /mnt/{{ .Release.Name }}-proxy-nginx
+            - name: {{ .Release.Name }}-gateway-nginx
+              mountPath: /mnt/{{ .Release.Name }}-gateway-nginx
       containers:
-        - name: nginx
+        - name: proxy
           {{ include "container.securityContext" . | indent 10 }}
           image: docker.io/nginx:latest
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
@@ -59,26 +59,26 @@ spec:
             - containerPort: 8443
               hostPort: 8443
           volumeMounts:
-            - name: {{ .Release.Name }}-proxy-nginx
+            - name: {{ .Release.Name }}-gateway-nginx
               mountPath: /var/cache/nginx
               subPath: nginx
-            - name: {{ .Release.Name }}-proxy-nginx
+            - name: {{ .Release.Name }}-gateway-nginx
               mountPath: /var/run
               subPath: run
-            - name: {{ .Release.Name }}-proxy-nginx
+            - name: {{ .Release.Name }}-gateway-nginx
               mountPath: /etc/nginx/conf.d
               subPath: conf.d
 
-            - name: {{ .Release.Name }}-proxy-secret
+            - name: {{ .Release.Name }}-gateway-secret
               mountPath: /etc/nginx/certificates
 
-            - name: {{ .Release.Name }}-proxy-config
+            - name: {{ .Release.Name }}-gateway-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
 
-            - name: {{ .Release.Name }}-proxy-includes
+            - name: {{ .Release.Name }}-gateway-includes
               mountPath: /etc/nginx/includes
-            - name: {{ .Release.Name }}-proxy-templates
+            - name: {{ .Release.Name }}-gateway-templates
               mountPath: /etc/nginx/templates
           livenessProbe:
             httpGet:
@@ -89,23 +89,23 @@ spec:
               path: /
               port: 8080
       volumes:
-        - name: {{ .Release.Name }}-proxy-secret
+        - name: {{ .Release.Name }}-gateway-secret
           secret:
-            secretName: {{ .Release.Name }}-proxy
+            secretName: {{ .Release.Name }}-gateway
             items:
               - key: tls.crt
                 path: certificate.crt
               - key: tls.key
                 path: private.key
 
-        - name: {{ .Release.Name }}-proxy-config
+        - name: {{ .Release.Name }}-gateway-config
           configMap:
-            name: {{ .Release.Name }}-proxy
+            name: {{ .Release.Name }}-gateway
             optional: true
 
-        - name: {{ .Release.Name }}-proxy-includes
+        - name: {{ .Release.Name }}-gateway-includes
           configMap:
-            name: {{ .Release.Name }}-proxy
+            name: {{ .Release.Name }}-gateway
             optional: true
             items:
               - key: listen.conf
@@ -114,9 +114,9 @@ spec:
                 path: proxy.conf
               - key: ssl.conf
                 path: ssl.conf
-        - name: {{ .Release.Name }}-proxy-templates
+        - name: {{ .Release.Name }}-gateway-templates
           configMap:
-            name: {{ .Release.Name }}-proxy
+            name: {{ .Release.Name }}-gateway
             optional: true
             items:
               - key: default.conf
@@ -136,7 +136,7 @@ spec:
               - key: redis-insight.conf
                 path: redis-insight.conf.template
 
-        - name: {{ .Release.Name }}-proxy-nginx
+        - name: {{ .Release.Name }}-gateway-nginx
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-proxy-nginx
+            claimName: {{ .Release.Name }}-gateway-nginx
 {{ end }}

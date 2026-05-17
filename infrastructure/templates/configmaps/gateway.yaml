@@ -1,44 +1,44 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-proxy
+  name: {{ .Release.Name }}-gateway
 data:
   nginx.conf: |
-{{ .Files.Get "configs/proxy/nginx.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/nginx.conf" | nindent 4 }}
   listen.conf: |
-{{ .Files.Get "configs/proxy/listen.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/listen.conf" | nindent 4 }}
   proxy.conf: |
-{{ .Files.Get "configs/proxy/proxy.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/proxy.conf" | nindent 4 }}
   ssl.conf: |
-{{ .Files.Get "configs/proxy/ssl.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/ssl.conf" | nindent 4 }}
 
 {{ if has "codium" .Values.services }}
   codium.conf: |
-{{ .Files.Get "configs/proxy/codium.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}
 {{ end }}
 {{ if has "dbgate" .Values.services }}
   dbgate.conf: |
-{{ .Files.Get "configs/proxy/dbgate.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}
 {{ end }}
 {{ if has "ollama" .Values.services }}
   ollama.conf: |
-{{ .Files.Get "configs/proxy/ollama.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/ollama.conf" | nindent 4 }}
 {{ end }}
 {{ if has "open-webui" .Values.services }}
   open-webui.conf: |
-{{ .Files.Get "configs/proxy/open-webui.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/open-webui.conf" | nindent 4 }}
 {{ end }}
 {{ if has "openclaw" .Values.services }}
   openclaw.conf: |
-{{ .Files.Get "configs/proxy/openclaw.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/openclaw.conf" | nindent 4 }}
 {{ end }}
 {{ if has "opencode" .Values.services }}
   opencode.conf: |
-{{ .Files.Get "configs/proxy/opencode.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/opencode.conf" | nindent 4 }}
 {{ end }}
 {{ if has "redis-insight" .Values.services }}
   redis-insight.conf: |
-{{ .Files.Get "configs/proxy/redis-insight.conf" | nindent 4 }}
+{{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}
 {{ end }}
   
   default.conf: |
