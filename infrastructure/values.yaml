@@ -6,6 +6,8 @@ deployments:
   volumes:
 
 services:
+  ant:
+    enabled: false
   codium:
     enabled: true
     image: localhost/core:latest

@@ -44,6 +44,9 @@ spec:
           {{ include "container.securityContext" . | indent 10 }}
           image: {{ .Values.services.gateway.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
           ports:
             - containerPort: 8080
               hostPort: 8080
@@ -59,7 +62,6 @@ spec:
             - name: {{ .Release.Name }}-gateway-nginx
               mountPath: /etc/nginx/conf.d
               subPath: conf.d
-
             - name: {{ .Release.Name }}-gateway-secret
               mountPath: /etc/nginx/certificates
 
@@ -112,6 +114,10 @@ spec:
             items:
               - key: default.conf
                 path: default.conf.template
+              {{ if .Values.services.ant.enabled }}
+              - key: ant.conf
+                path: ant.conf.template
+              {{ end }}
               {{ if .Values.services.codium.enabled }}
               - key: codium.conf
                 path: codium.conf.template
