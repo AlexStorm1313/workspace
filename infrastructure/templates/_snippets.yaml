@@ -1,5 +1,4 @@
 {{ define "pod.securityContext" }}
-{{ if eq .Values.environment "podman" }}
 securityContext:
   fsGroup: 0
   fsGroupChangePolicy: "OnRootMismatch"
@@ -9,10 +8,8 @@ securityContext:
   seccompProfile:
     type: RuntimeDefault
 {{ end }}
-{{ end }}
 
 {{ define "container.securityContext" }}
-{{ if eq .Values.environment "podman" }}
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
@@ -24,5 +21,4 @@ securityContext:
   runAsUser: 1001
   seccompProfile:
     type: RuntimeDefault
-{{ end }}
 {{ end }}

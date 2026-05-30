@@ -1,3 +1,4 @@
+{{ if .Values.services.codium.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,3 +8,4 @@ data:
 {{ .Files.Get "configs/codium/.gitconfig" | nindent 4 }}
   settings.json: |
 {{ .Files.Get "configs/codium/settings.json" | nindent 4 }}
+{{ end }}

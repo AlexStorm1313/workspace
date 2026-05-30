@@ -1,3 +1,4 @@
+{{ if .Values.services.gateway.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,31 +13,31 @@ data:
   ssl.conf: |
 {{ .Files.Get "configs/gateway/ssl.conf" | nindent 4 }}
 
-{{ if has "codium" .Values.services }}
+{{ if .Values.services.codium.enabled }}
   codium.conf: |
 {{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}
 {{ end }}
-{{ if has "dbgate" .Values.services }}
+{{ if .Values.services.dbgate.enabled }}
   dbgate.conf: |
 {{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}
 {{ end }}
-{{ if has "ollama" .Values.services }}
+{{ if .Values.services.ollama.enabled }}
   ollama.conf: |
 {{ .Files.Get "configs/gateway/ollama.conf" | nindent 4 }}
 {{ end }}
-{{ if has "open-webui" .Values.services }}
+{{ if (index .Values.services "open-webui").enabled }}
   open-webui.conf: |
 {{ .Files.Get "configs/gateway/open-webui.conf" | nindent 4 }}
 {{ end }}
-{{ if has "openclaw" .Values.services }}
+{{ if .Values.services.openclaw.enabled }}
   openclaw.conf: |
 {{ .Files.Get "configs/gateway/openclaw.conf" | nindent 4 }}
 {{ end }}
-{{ if has "opencode" .Values.services }}
+{{ if .Values.services.opencode.enabled }}
   opencode.conf: |
 {{ .Files.Get "configs/gateway/opencode.conf" | nindent 4 }}
 {{ end }}
-{{ if has "redis-insight" .Values.services }}
+{{ if (index .Values.services "redis-insight").enabled }}
   redis-insight.conf: |
 {{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}
 {{ end }}
@@ -54,3 +55,4 @@ data:
           index  index.html index.htm;
       }
     }
+{{ end }}

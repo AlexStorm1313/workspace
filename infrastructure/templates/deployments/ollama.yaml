@@ -1,4 +1,4 @@
-{{ if has "ollama" .Values.services }}
+{{ if .Values.services.ollama.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,27 +6,18 @@ metadata:
   labels:
     app: {{ .Release.Name }}-ollama
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-ollama
   template:
     metadata:
-      annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-ollama
-        deployment: {{ .Release.Name }}-ollama
     spec:
       initContainers: 
         - name: pull
-          image: docker.io/ollama/ollama:rocm
+          image: {{ .Values.services.ollama.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args:
@@ -43,7 +34,7 @@ spec:
               mountPath: /root/.ollama
       containers:
         - name: server
-          image: docker.io/ollama/ollama:rocm
+          image: {{ .Values.services.ollama.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
             # - name: OLLAMA_VULKAN

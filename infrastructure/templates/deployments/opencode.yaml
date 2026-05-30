@@ -1,4 +1,4 @@
-{{ if has "opencode" .Values.services }}
+{{ if .Values.services.opencode.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,20 +6,14 @@ metadata:
   labels:
     app: {{ .Release.Name }}-opencode
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-opencode
   template:
     metadata:
-      annotations:
       labels:
         app: {{ .Release.Name }}-opencode
-        deployment: {{ .Release.Name }}-opencode
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -38,7 +32,7 @@ spec:
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
-          image: localhost/core:latest
+          image: {{ .Values.services.opencode.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
           args: ["bunx", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
@@ -57,6 +51,9 @@ spec:
             - name: {{ . }}
               mountPath: /home/core/workspace/{{ . }}
             {{ end }}
+
+            - name: development
+              mountPath: /home/core/Development:z
 
             - name: {{ .Release.Name }}-opencode-configmaps
               mountPath: /home/core/.config/opencode/opencode.json
@@ -94,4 +91,9 @@ spec:
           persistentVolumeClaim:
             claimName: {{ . }}
         {{ end }}
+
+        - name: development
+          hostPath:
+            path: /home/alexstorm13/Development
+            type: Directory
 {{ end }}

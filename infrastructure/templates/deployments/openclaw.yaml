@@ -1,4 +1,4 @@
-{{- if has "openclaw" .Values.services }}
+{{- if .Values.services.openclaw.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,7 +35,7 @@ spec:
       containers:
         - name: gateway
           {{ include "container.securityContext" . | indent 10 }}
-          image: localhost/core:latest
+          image: {{ .Values.services.openclaw.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["openclaw"]
           args: ["gateway", "run"]
@@ -52,7 +52,7 @@ spec:
             #   subPath: openclaw.json
         - name: nginx
             #   readOnly: false
-          image: docker.io/nginx:latest
+          image: {{ .Values.services.openclaw.proxyImage }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           ports:
             - containerPort: 8080
@@ -62,7 +62,7 @@ spec:
               mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
         - name: opencode-node
-          image: localhost/core:latest
+          image: {{ .Values.services.openclaw.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["openclaw"]
           args:

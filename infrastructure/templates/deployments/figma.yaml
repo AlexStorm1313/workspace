@@ -1,4 +1,4 @@
-{{ if has "figma" .Values.services }}
+{{ if .Values.services.figma.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,28 +6,19 @@ metadata:
   labels:
     app: {{ .Release.Name }}-figma
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-figma
   template:
     metadata:
-      annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-figma
-        deployment: {{ .Release.Name }}-figma
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       containers:
         - name: mcp
-          image: docker.io/acuvity/mcp-server-figma:latest
+          image: {{ .Values.services.figma.image }}
           {{ include "container.securityContext" . | indent 10 }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:

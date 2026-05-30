@@ -4,7 +4,7 @@ NAMESPACE=workspace
 
 # Generate deployment from Helm Chart
 kube:
-	@podman run -it --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure docker.io/alpine/helm:latest template ${NAMESPACE} --dry-run=client --values ./values.yaml . > ./infrastructure/kube.yaml
+	@podman run -i --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure --entrypoint sh docker.io/alpine/helm:latest -c 'helm template ${NAMESPACE} --dry-run=client --values ./values.yaml . > ./kube.yaml.tmp && mv ./kube.yaml.tmp ./kube.yaml'
 
 # Run the deployment with Podman
 play:

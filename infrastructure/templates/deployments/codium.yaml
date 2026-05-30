@@ -1,4 +1,4 @@
-{{ if has "codium" .Values.services }}
+{{ if .Values.services.codium.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,20 +6,14 @@ metadata:
   labels:
     app: {{ .Release.Name }}-codium
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-codium
   template:
     metadata:
-      annotations:
       labels:
         app: {{ .Release.Name }}-codium
-        deployment: {{ .Release.Name }}-codium
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -41,7 +35,7 @@ spec:
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
-          image: localhost/core:latest
+          image: {{ .Values.services.codium.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
           args: ["codium", "serve-web", "--host", "0.0.0.0", "--port", "3000", "--without-connection-token"]

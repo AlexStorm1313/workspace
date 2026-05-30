@@ -1,4 +1,4 @@
-{{ if has "redis-insight" .Values.services }}
+{{ if (index .Values.services "redis-insight").enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,23 +6,14 @@ metadata:
   labels:
     app: {{ .Release.Name }}-redis-insight
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-redis-insight
   template:
     metadata:
-      annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-redis-insight
-        deployment: {{ .Release.Name }}-redis-insight
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -38,7 +29,7 @@ spec:
       containers:
         - name: redis-insight
           {{ include "container.securityContext" . | indent 10 }}
-          image: docker.io/redis/redisinsight:latest
+          image: {{ (index .Values.services "redis-insight").image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           volumeMounts:
             - name: {{ .Release.Name }}-redis-insight

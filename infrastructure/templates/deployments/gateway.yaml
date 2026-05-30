@@ -1,4 +1,4 @@
-{{ if eq .Values.environment "podman" }}
+{{ if .Values.services.gateway.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,23 +6,14 @@ metadata:
   labels:
     app: {{ .Release.Name }}-gateway
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-gateway
   template:
     metadata:
-      annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-gateway
-        deployment: {{ .Release.Name }}-gateway
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -51,7 +42,7 @@ spec:
       containers:
         - name: proxy
           {{ include "container.securityContext" . | indent 10 }}
-          image: docker.io/nginx:latest
+          image: {{ .Values.services.gateway.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           ports:
             - containerPort: 8080
@@ -121,20 +112,34 @@ spec:
             items:
               - key: default.conf
                 path: default.conf.template
+              {{ if .Values.services.codium.enabled }}
               - key: codium.conf
                 path: codium.conf.template
+              {{ end }}
+              {{ if .Values.services.dbgate.enabled }}
               - key: dbgate.conf
                 path: dbgate.conf.template
+              {{ end }}
+              {{ if .Values.services.ollama.enabled }}
               - key: ollama.conf
                 path: ollama.conf.template
+              {{ end }}
+              {{ if (index .Values.services "open-webui").enabled }}
               - key: open-webui.conf
                 path: open-webui.conf.template
+              {{ end }}
+              {{ if .Values.services.openclaw.enabled }}
               - key: openclaw.conf
                 path: openclaw.conf.template
+              {{ end }}
+              {{ if .Values.services.opencode.enabled }}
               - key: opencode.conf
                 path: opencode.conf.template
+              {{ end }}
+              {{ if (index .Values.services "redis-insight").enabled }}
               - key: redis-insight.conf
                 path: redis-insight.conf.template
+              {{ end }}
 
         - name: {{ .Release.Name }}-gateway-nginx
           persistentVolumeClaim:

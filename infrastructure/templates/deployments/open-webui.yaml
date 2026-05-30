@@ -1,4 +1,4 @@
-{{ if has "open-webui" .Values.services }}
+{{ if (index .Values.services "open-webui").enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,23 +6,14 @@ metadata:
   labels:
     app: {{ .Release.Name }}-open-webui
 spec:
-  {{ if .Values.devmode }}
-  strategy:
-    type: Recreate
-  {{ end }}
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-open-webui
   template:
     metadata:
-      annotations:
-      {{ if .Values.devmode }}
-        rollme: {{ randAlphaNum 5 | quote }}
-      {{ end }}
       labels:
         app: {{ .Release.Name }}-open-webui
-        deployment: {{ .Release.Name }}-open-webui
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -39,11 +30,11 @@ spec:
       containers:
         - name: open-webui
           {{ include "container.securityContext" . | indent 10 }}
-          image: ghcr.io/open-webui/open-webui:main
+          image: {{ (index .Values.services "open-webui").image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
             - name: OLLAMA_BASE_URL
-              value: http://workspace-ollama-pod:11434
+              value: http://{{ .Release.Name }}-ollama-pod:11434
             - name: WEBUI_SECRET_KEY
               value: secret
             - name: WEBUI_AUTH
