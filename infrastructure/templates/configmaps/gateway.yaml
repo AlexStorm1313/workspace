@@ -45,6 +45,10 @@ data:
   redis-insight.conf: |
 {{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}
 {{ end }}
+{{ if (index .Values.services "scalar").enabled }}
+  scalar.conf: |
+{{ .Files.Get "configs/gateway/scalar.conf" | nindent 4 }}
+{{ end }}
   
   default.conf: |
     server {

@@ -146,6 +146,10 @@ spec:
               - key: redis-insight.conf
                 path: redis-insight.conf.template
               {{ end }}
+              {{ if (index .Values.services "scalar").enabled }}
+              - key: scalar.conf
+                path: scalar.conf.template
+              {{ end }}
 
         - name: {{ .Release.Name }}-gateway-nginx
           persistentVolumeClaim:

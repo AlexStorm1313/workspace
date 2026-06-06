@@ -1,0 +1,26 @@
+{{ if .Values.services.scalar.enabled }}
+scalarVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-scalar
+  labels:
+    app: {{ .Release.Name }}-scalar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-scalar
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-scalar
+    spec:
+      containers:
+        - name: scalar
+          image: {{ .Values.services.scalar.image }}
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: API_REFERENCE_CONFIG
+              # value: '{"sources":[{"url": "http://api.ant.localhost:8080/openapi.json"}],"theme": "purple"}'
+              value: '{"sources":[{"url": "https://api.ant.localhost:8443/openapi.json"}],"theme": "purple"}'
+{{ end }}
