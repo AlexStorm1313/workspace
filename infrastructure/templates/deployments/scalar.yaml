@@ -22,5 +22,5 @@ spec:
           env:
             - name: API_REFERENCE_CONFIG
               # value: '{"sources":[{"url": "http://api.ant.localhost:8080/openapi.json"}],"theme": "purple"}'
-              value: '{"sources":[{"url": "https://api.ant.localhost:8443/openapi.json"}],"theme": "purple"}'
+              value: '{"sources":[{"url": "https://api.ant.localhost:8443/openapi.json"},{"url": "https://api.ant.fedora-workstation:8443/openapi.json"}],"theme": "purple"}'
 {{ end }}

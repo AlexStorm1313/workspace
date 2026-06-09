@@ -26,7 +26,7 @@ services:
     enabled: false
     image: docker.io/dbgate/dbgate:latest
   redis-insight:
-    enabled: false
+    enabled: true
     image: docker.io/redis/redisinsight:latest
   scalar:
     enabled: true
