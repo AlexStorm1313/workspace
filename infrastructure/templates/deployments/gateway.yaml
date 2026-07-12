@@ -142,6 +142,10 @@ spec:
               - key: opencode.conf
                 path: opencode.conf.template
               {{ end }}
+              {{ if .Values.services.openhands.enabled }}
+              - key: openhands.conf
+                path: openhands.conf.template
+              {{ end }}
               {{ if (index .Values.services "redis-insight").enabled }}
               - key: redis-insight.conf
                 path: redis-insight.conf.template

@@ -41,6 +41,10 @@ data:
   opencode.conf: |
 {{ .Files.Get "configs/gateway/opencode.conf" | nindent 4 }}
 {{ end }}
+{{ if .Values.services.openhands.enabled }}
+  openhands.conf: |
+{{ .Files.Get "configs/gateway/openhands.conf" | nindent 4 }}
+{{ end }}
 {{ if (index .Values.services "redis-insight").enabled }}
   redis-insight.conf: |
 {{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}

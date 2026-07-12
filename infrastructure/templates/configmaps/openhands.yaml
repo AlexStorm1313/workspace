@@ -1,0 +1,9 @@
+{{ if .Values.services.openhands.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-openhands
+data:
+  opencode.json: |
+{{ .Files.Get "configs/openhands/opencode.json" | nindent 4 }}
+{{ end }}

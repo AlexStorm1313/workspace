@@ -11,16 +11,19 @@ services:
     enabled: true
   codium:
     enabled: true
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest
   opencode:
     enabled: true
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest
+  openhands:
+    enabled: false
+    image: ghcr.io/alexstorm1313/core:latest
   gateway:
     enabled: true
     image: docker.io/nginx:latest
   openclaw:
     enabled: false
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest
     proxyImage: docker.io/nginx:latest
   dbgate:
     enabled: false

@@ -1,19 +1,19 @@
-{{ if .Values.services.opencode.enabled }}
+{{ if .Values.services.openhands.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-opencode
+  name: {{ .Release.Name }}-openhands
   labels:
-    app: {{ .Release.Name }}-opencode
+    app: {{ .Release.Name }}-openhands
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-opencode
+      app: {{ .Release.Name }}-openhands
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-opencode
+        app: {{ .Release.Name }}-openhands
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
       initContainers:
@@ -22,31 +22,31 @@ spec:
           image: docker.io/busybox:latest
           command: ["/bin/mkdir"]
           args: ["-p",
-            "/mnt/{{ .Release.Name }}-opencode-opencode/.local",
-            "/mnt/{{ .Release.Name }}-opencode-opencode/.cache",
-            "/mnt/{{ .Release.Name }}-opencode-opencode/.config",
+            "/mnt/{{ .Release.Name }}-openhands-openhands/.local",
+            "/mnt/{{ .Release.Name }}-openhands-openhands/.cache",
+            "/mnt/{{ .Release.Name }}-openhands-openhands/.config",
           ]
           volumeMounts:
-            - name: {{ .Release.Name }}-opencode-opencode
-              mountPath: /mnt/{{ .Release.Name }}-opencode-opencode
+            - name: {{ .Release.Name }}-openhands-openhands
+              mountPath: /mnt/{{ .Release.Name }}-openhands-openhands
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
-          image: {{ .Values.services.opencode.image }}
+          image: {{ .Values.services.openhands.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
-          args: ["bunx", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
+          args: ["bunx", "agent-canvas", "--port", "3000"]
           env:
             - name: CONTAINER_HOST
               value: tcp://host.containers.internal:2375
           volumeMounts:
-            - name: {{ .Release.Name }}-opencode-opencode
+            - name: {{ .Release.Name }}-openhands-openhands
               mountPath: /home/core/.local
               subPath: .local
-            - name: {{ .Release.Name }}-opencode-opencode
+            - name: {{ .Release.Name }}-openhands-openhands
               mountPath: /home/core/.cache
               subPath: .cache
-            - name: {{ .Release.Name }}-opencode-opencode
+            - name: {{ .Release.Name }}-openhands-openhands
               mountPath: /home/core/.config
               subPath: .config
 
@@ -55,39 +55,27 @@ spec:
               mountPath: /home/core/workspace/{{ . }}
             {{ end }}
 
-            - name: development
-              mountPath: /home/core/Development:z
-
-            - name: {{ .Release.Name }}-opencode-configmaps
+            - name: {{ .Release.Name }}-openhands-configmaps
               mountPath: /home/core/.config/opencode/opencode.json
               subPath: opencode.json
 
-            - name: {{ .Release.Name }}-opencode-secrets
+            - name: {{ .Release.Name }}-openhands-secrets
               mountPath: /home/core/.codex/auth.json
               subPath: auth.json
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
-          # readinessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
-
       volumes:
-        - name: {{ .Release.Name }}-opencode-secrets
+        - name: {{ .Release.Name }}-openhands-secrets
           secret:
-            secretName: {{ .Release.Name }}-opencode
+            secretName: {{ .Release.Name }}-openhands
             optional: true
-        - name: {{ .Release.Name }}-opencode-configmaps
+        - name: {{ .Release.Name }}-openhands-configmaps
           configMap:
-            name: {{ .Release.Name }}-opencode
+            name: {{ .Release.Name }}-openhands
             optional: true
 
-        - name: {{ .Release.Name }}-opencode-opencode
+        - name: {{ .Release.Name }}-openhands-openhands
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-opencode-opencode
+            claimName: {{ .Release.Name }}-openhands-openhands
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
