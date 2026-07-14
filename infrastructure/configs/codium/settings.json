@@ -4,7 +4,7 @@
     "editor.formatOnSave": true,
     "editor.inlineSuggest.syntaxHighlightingEnabled": true,
     "files.autoSave": "onWindowChange",
-    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.colorTheme": "Dark Modern",
     "workbench.startupEditor": "none",
     "workbench.editor.enablePreview": false,
     "workbench.layoutControl.enabled": false,

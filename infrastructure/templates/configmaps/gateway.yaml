@@ -17,6 +17,10 @@ data:
   ant.conf: |
 {{ .Files.Get "configs/gateway/ant.conf" | nindent 4 }}
 {{ end }}
+{{ if .Values.services.appfusion.enabled }}
+  appfusion.conf: |
+{{ .Files.Get "configs/gateway/appfusion.conf" | nindent 4 }}
+{{ end }}
 {{ if .Values.services.codium.enabled }}
   codium.conf: |
 {{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}

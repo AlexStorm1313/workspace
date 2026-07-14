@@ -7,6 +7,8 @@ securityContext:
   runAsUser: 1001
   seccompProfile:
     type: RuntimeDefault
+  seLinuxOptions:
+    type: spc_t
 {{ end }}
 
 {{ define "container.securityContext" }}

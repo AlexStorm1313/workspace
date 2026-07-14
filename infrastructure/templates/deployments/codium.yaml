@@ -40,10 +40,10 @@ spec:
           command: ["tini", "--"]
           args: ["codium", "serve-web", "--host", "0.0.0.0", "--port", "3000", "--without-connection-token"]
           env:
-            - name: DONT_PROMPT_WSL_INSTALL
-              value: true
             - name: CONTAINER_HOST
-              value: tcp://host.containers.internal:2375
+              value: unix:///run/podman.sock
+            - name: SSH_AUTH_SOCK
+              value: /run/sshd.sock
           volumeMounts:
             - name: {{ .Release.Name }}-codium-codium
               mountPath: /home/core/.vscode-oss
@@ -61,11 +61,6 @@ spec:
               mountPath: /home/core/.ssh
               subPath: .ssh
 
-            {{ range .Values.deployments.volumes }}
-            - name: {{ . }}
-              mountPath: /home/core/workspace/{{ . }}
-            {{ end }}
-
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
@@ -74,34 +69,27 @@ spec:
               mountPath: /home/core/.vscodium-server/data/Machine/settings.json
               subPath: settings.json
               readOnly: true
-            # - name: {{ .Release.Name }}-codium-configmaps
-            #   mountPath: /home/core/.aws/config
-            #   subPath: aws
-            #   readOnly: true
 
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.ssh/id_privatekey
-              subPath: id_privatekey
-              readOnly: true
             - name: {{ .Release.Name }}-codium-secrets
               mountPath: /home/core/.wakatime.cfg
               subPath: wakatime.cfg
               readOnly: true
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.codex/auth.json
-              subPath: auth.json
 
-            # - name: development
-            #   mountPath: /home/core/Development:z
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/core/workspace/{{ . }}
+            {{ end }}
+            {{ range .Values.deployments.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: /home/core/workspace/{{ .name }}
+            {{ end }}
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 3000
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 3000
+            - name: sshd.sock
+              mountPath: /run/sshd.sock
+              readOnly: true
+            - name: podman.sock
+              mountPath: /run/podman.sock
+
       volumes:
         - name: {{ .Release.Name }}-codium-secrets
           secret:
@@ -121,9 +109,19 @@ spec:
           persistentVolumeClaim:
             claimName: {{ . }}
         {{ end }}
-
-        - name: development
+        {{ range .Values.deployments.volumeMounts }}
+        - name: {{ .name }}
           hostPath:
-            path: /home/alexstorm13/Development
+            path: {{ .mountPath }}
             type: Directory
+        {{ end }}
+
+        - name: sshd.sock
+          hostPath:
+            path: /run/user/1000/gcr/ssh
+            type: Socket
+        - name: podman.sock
+          hostPath:
+            path: /run/user/1000/podman/podman.sock
+            type: Socket
 {{ end }}

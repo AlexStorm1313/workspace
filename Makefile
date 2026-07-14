@@ -1,6 +1,7 @@
-.PHONY: build kube play down workspace install upgrade uninstall tls auth-codex
+.PHONY: kube play down workspace clean certificate auth-codex
 
 NAMESPACE=workspace
+USERNS=--userns=keep-id:uid=1001,gid=0
 
 # Generate deployment from Helm Chart
 kube:
@@ -8,12 +9,12 @@ kube:
 
 # Run the deployment with Podman
 play:
-	@podman kube play --replace ./infrastructure/kube.yaml
+	@podman kube play --replace $(USERNS) ./infrastructure/kube.yaml
 	@podman pod ls | grep ${NAMESPACE}
 
 # Stop the deployment with Podman
 down:
-	@podman kube down ./infrastructure/kube.yaml
+	@podman kube down --force ./infrastructure/kube.yaml
 # 	@podman volume rm ${NAMESPACE}-gateway
 
 # Build containers, Generate deployment and Run the deployment with Podman
@@ -22,14 +23,12 @@ workspace:
 	@make kube
 	@make play
 
-expose-podman-api:
-	@podman system service --time=0 tcp://0.0.0.0:2375
-
-jappa:
-	@cp ~/.ssh/id_ed25519 ./shared/secrets/codium/id_privatekey
+# Remove all volumes
+clean:
+	@podman volume ls --quiet --filter 'name=^${NAMESPACE}-' | xargs -r podman volume rm --force
 
 # Generate a Certificate
-tls:
+certificate:
 	@podman run -it --rm \
 	-e DOMAIN=localhost \
 	-e COUNTRY=US \
@@ -38,17 +37,3 @@ tls:
 	-e ORGANIZATION=workspace \
 	-v ./secrets:/certs:Z \
 	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
-
-auth-codex:
-	@podman run --rm -it \
-	--name codex-debug \
-	-p 1455:1455 \
-	--user 0:0 \
-	-v ./infrastructure/secrets/codex:/workspace/.config/codex:Z \
-	docker.io/photoprism/codex:latest
-
-opencode:
-	@podman exec -it workspace-opencode-pod-opencode-server opencode
-
-openclaw:
-	@podman exec -it workspace-openclaw-pod-openclaw bash

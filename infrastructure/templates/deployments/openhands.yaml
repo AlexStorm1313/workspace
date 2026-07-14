@@ -82,9 +82,4 @@ spec:
           persistentVolumeClaim:
             claimName: {{ . }}
         {{ end }}
-
-        - name: development
-          hostPath:
-            path: /home/alexstorm13/Development
-            type: Directory
 {{ end }}

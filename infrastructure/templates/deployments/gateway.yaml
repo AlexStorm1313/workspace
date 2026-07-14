@@ -118,6 +118,10 @@ spec:
               - key: ant.conf
                 path: ant.conf.template
               {{ end }}
+              {{ if .Values.services.appfusion.enabled }}
+              - key: appfusion.conf
+                path: appfusion.conf.template
+              {{ end }}
               {{ if .Values.services.codium.enabled }}
               - key: codium.conf
                 path: codium.conf.template

@@ -38,7 +38,7 @@ spec:
           args: ["bunx", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
           env:
             - name: CONTAINER_HOST
-              value: tcp://host.containers.internal:2375
+              value: unix:///run/podman.sock
           volumeMounts:
             - name: {{ .Release.Name }}-opencode-opencode
               mountPath: /home/core/.local
@@ -50,30 +50,21 @@ spec:
               mountPath: /home/core/.config
               subPath: .config
 
-            {{ range .Values.deployments.volumes }}
-            - name: {{ . }}
-              mountPath: /home/core/workspace/{{ . }}
-            {{ end }}
-
-            - name: development
-              mountPath: /home/core/Development:z
-
             - name: {{ .Release.Name }}-opencode-configmaps
               mountPath: /home/core/.config/opencode/opencode.json
               subPath: opencode.json
 
-            - name: {{ .Release.Name }}-opencode-secrets
-              mountPath: /home/core/.codex/auth.json
-              subPath: auth.json
+            {{ range .Values.deployments.volumes }}
+            - name: {{ . }}
+              mountPath: /home/core/workspace/{{ . }}
+            {{ end }}
+            {{ range .Values.deployments.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: /home/core/workspace/{{ .name }}
+            {{ end }}
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
-          # readinessProbe:
-          #   httpGet:
-          #     path: /global/health
-          #     port: 3000
+            - name: podman.sock
+              mountPath: /run/podman.sock
 
       volumes:
         - name: {{ .Release.Name }}-opencode-secrets
@@ -94,9 +85,15 @@ spec:
           persistentVolumeClaim:
             claimName: {{ . }}
         {{ end }}
-
-        - name: development
+        {{ range .Values.deployments.volumeMounts }}
+        - name: {{ .name }}
           hostPath:
-            path: /home/alexstorm13/Development
+            path: {{ .mountPath }}
             type: Directory
+        {{ end }}
+
+        - name: podman.sock
+          hostPath:
+            path: /run/user/1000/podman/podman.sock
+            type: Socket
 {{ end }}

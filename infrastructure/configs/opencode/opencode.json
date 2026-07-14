@@ -4,17 +4,5 @@
 
   "model": "openai/gpt-5.6-terra",
   "small_model": "openai/gpt-5.6-luna",
-  "enabled_providers": ["openai"],
-
-  "mcp": {
-    "figma": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.figma.com/mcp",
-      "oauth": {
-        "clientId": "",
-        "clientSecret": ""
-      }
-    }
-  }
+  "enabled_providers": ["openai"]
 }

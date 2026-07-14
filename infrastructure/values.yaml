@@ -1,13 +1,16 @@
 deployments:
   containers:
-    image: localhost
     pullPolicy: IfNotPresent
     # pullPolicy: Always
   volumes:
-    - ant
+  volumeMounts:
+    - name: development
+      mountPath: /home/alexstorm13/Development
 
 services:
   ant:
+    enabled: true
+  appfusion:
     enabled: true
   codium:
     enabled: true
@@ -40,6 +43,3 @@ services:
   ollama:
     enabled: false
     image: docker.io/ollama/ollama:rocm
-  figma:
-    enabled: false
-    image: docker.io/acuvity/mcp-server-figma:latest
