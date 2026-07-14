@@ -1,4 +1,4 @@
-.PHONY: kube play down workspace clean certificate auth-codex
+.PHONY: kube play down workspace clean certificate
 
 NAMESPACE=workspace
 USERNS=--userns=keep-id:uid=1001,gid=0
@@ -15,7 +15,6 @@ play:
 # Stop the deployment with Podman
 down:
 	@podman kube down --force ./infrastructure/kube.yaml
-# 	@podman volume rm ${NAMESPACE}-gateway
 
 # Build containers, Generate deployment and Run the deployment with Podman
 workspace:
