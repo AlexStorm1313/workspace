@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-opencode
 data:
+  .gitconfig: |
+{{ .Files.Get "configs/opencode/.gitconfig" | nindent 4 }}
   opencode.json: |
 {{ .Files.Get "configs/opencode/opencode.json" | nindent 4 }}
 {{ end }}

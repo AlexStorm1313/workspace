@@ -36,3 +36,6 @@ certificate:
 	-e ORGANIZATION=workspace \
 	-v ./secrets:/certs:Z \
 	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
+
+chromium:
+	/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=/app/bin/chromium --file-forwarding org.chromium.Chromium --use-gl=angle --use-angle=gl --ignore-gpu-blocklist --disable-gpu-driver-bug-workaround --ozone-platform=wayland --enable-native-gpu-memory-buffers --enable-gpu-memory-buffer-video-frames --enable-zero-copy --enable-chrome-browser-cloud-management --enable-gpu-rasterization --enable-plugins --enable-extensions --enable-user-scripts --enable-printing --enable-sync --auto-ssl-client-auth --disable-features=ExtensionManifestV2DeprecationWarning,ExtensionManifestV2Disabled,ExtensionManifestV2Unsupported --enable-features=AcceleratedVideoEncoder,AcceleratedVideoDecodeLinuxGL,AcceleratedVideoDecodeLinuxZeroCopyGL,VaapiOnNvidiaGPUs,OverlayScrollbar,AllowLegacyMV2Extensions,TouchpadOverscrollHistoryNavigation --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222 --user-data-dir=/tmp/chromium-devtools @@u %U @@

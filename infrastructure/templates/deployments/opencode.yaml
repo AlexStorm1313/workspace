@@ -51,6 +51,10 @@ spec:
               subPath: .config
 
             - name: {{ .Release.Name }}-opencode-configmaps
+              mountPath: /home/core/.gitconfig
+              subPath: .gitconfig
+              readOnly: true
+            - name: {{ .Release.Name }}-opencode-configmaps
               mountPath: /home/core/.config/opencode/opencode.json
               subPath: opencode.json
 
@@ -65,6 +69,30 @@ spec:
 
             - name: podman.sock
               mountPath: /run/podman.sock
+
+        - name: chrome-devtools-tunnel
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/jnovack/autossh:latest
+          env:
+            - name: SSH_AUTH_SOCK
+              value: /run/sshd.sock
+          command:
+            - autossh
+            - "-M"
+            - "0"
+            - "-N"
+            - "-o"
+            - "UserKnownHostsFile=/dev/null"
+            - "-o"
+            - "StrictHostKeyChecking=no"
+            - "-L"
+            - "0.0.0.0:9222:127.0.0.1:9222"
+            - "alexstorm13@host.containers.internal"
+
+          volumeMounts:
+            - name: sshd.sock
+              mountPath: /run/sshd.sock
+              readOnly: true
 
       volumes:
         - name: {{ .Release.Name }}-opencode-secrets
@@ -95,5 +123,9 @@ spec:
         - name: podman.sock
           hostPath:
             path: /run/user/1000/podman/podman.sock
+            type: Socket
+        - name: sshd.sock
+          hostPath:
+            path: /run/user/1000/gcr/ssh
             type: Socket
 {{ end }}
