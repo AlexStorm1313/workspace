@@ -43,7 +43,7 @@ spec:
             - name: START_DOCKER
               value: "false"
             - name: CHROME_CLI
-              value: "--disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222"
+              value: "--disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222 --enable-features=WebMCP,DevToolsWebMCPSupport"
           volumeMounts:
             - name: {{ .Release.Name }}-chromium-chromium
               mountPath: /config

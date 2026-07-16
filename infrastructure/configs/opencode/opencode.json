@@ -14,7 +14,9 @@
         "-y",
         "chrome-devtools-mcp@latest",
         "--browser-url=http://workspace-chromium-pod:9223",
-        "--no-usage-statistics"
+        "--no-usage-statistics",
+        "--experimental-devtools",
+        "--category-experimental-webmcp"
       ]
     }
   }
