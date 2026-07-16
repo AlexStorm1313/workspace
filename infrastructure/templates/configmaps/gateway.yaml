@@ -25,6 +25,10 @@ data:
   codium.conf: |
 {{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}
 {{ end }}
+{{ if .Values.services.chromium.enabled }}
+  chromium.conf: |
+{{ .Files.Get "configs/gateway/chromium.conf" | nindent 4 }}
+{{ end }}
 {{ if .Values.services.dbgate.enabled }}
   dbgate.conf: |
 {{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}

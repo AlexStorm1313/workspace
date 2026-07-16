@@ -15,6 +15,9 @@ services:
   codium:
     enabled: true
     image: ghcr.io/alexstorm1313/core:latest
+  chromium:
+    enabled: true
+    image: lscr.io/linuxserver/chromium:latest
   opencode:
     enabled: true
     image: ghcr.io/alexstorm1313/core:latest

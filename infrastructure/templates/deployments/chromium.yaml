@@ -1,0 +1,76 @@
+{{ if .Values.services.chromium.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-chromium
+  labels:
+    app: {{ .Release.Name }}-chromium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-chromium
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-chromium
+    spec:
+      initContainers:
+        - name: volume
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p", "/mnt/{{ .Release.Name }}-chromium-chromium/config"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-chromium-chromium
+              mountPath: /mnt/{{ .Release.Name }}-chromium-chromium
+      containers:
+        - name: chromium
+          # Override Podman's keep-id startup user so s6 can initialize the image.
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: {{ .Values.services.chromium.image }}
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          env:
+            - name: PUID
+              value: "1001"
+            - name: PGID
+              value: "0"
+            - name: PIXELFLUX_WAYLAND
+              value: "true"
+            - name: AUTO_GPU
+              value: "true"
+            - name: START_DOCKER
+              value: "false"
+            - name: CHROME_CLI
+              value: "--disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222"
+          volumeMounts:
+            - name: {{ .Release.Name }}-chromium-chromium
+              mountPath: /config
+              subPath: config
+            - name: dri
+              mountPath: /dev/dri
+        - name: devtools-proxy
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          image: docker.io/nginx:latest
+          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-chromium-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: nginx.conf
+              readOnly: true
+      volumes:
+        - name: {{ .Release.Name }}-chromium-chromium
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-chromium-chromium
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+        - name: {{ .Release.Name }}-chromium-config
+          configMap:
+            name: {{ .Release.Name }}-chromium
+            optional: true
+{{ end }}

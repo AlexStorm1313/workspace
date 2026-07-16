@@ -1,0 +1,9 @@
+{{ if .Values.services.chromium.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-chromium
+data:
+  nginx.conf: |
+{{ .Files.Get "configs/chromium/nginx.conf" | nindent 4 }}
+{{ end }}
