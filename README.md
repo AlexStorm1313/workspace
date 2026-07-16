@@ -1,65 +1,151 @@
 # Workspace
 
-Cloud-native development workspace using Podman, Helm, and preconfigured containerized tools.
+A local, containerized development workspace. The Helm chart in
+`infrastructure/` renders a Kubernetes manifest that Podman runs with
+`podman kube play`.
 
-The workspace is defined as a Helm chart under `infrastructure/`, rendered into a Kubernetes
-manifest, and run locally with `podman kube play`.
+The default configuration provides a gateway, OpenCode, VSCodium, Redis
+Insight, and Scalar. Configure enabled services and their images in
+`infrastructure/values.yaml`.
 
 ## Requirements
 
-- Podman
+- Podman with rootless containers enabled
 - `make`
-- Network access for pulling container images
+- Git and GitHub SSH access to initialize the `containers/core` submodule
+- Network access to pull container images
+- A host development directory and the Podman and GCR SSH sockets expected by
+  the OpenCode and VSCodium deployments
+
+## First-Time Setup
+
+Initialize the core image submodule:
+
+```sh
+git submodule update --init --recursive
+```
+
+Review `infrastructure/values.yaml` before rendering the chart. In particular,
+replace the default `deployments.volumeMounts[0].mountPath` value with a
+directory that exists on your host.
+
+OpenCode and VSCodium also mount these host sockets:
+
+```text
+/run/user/1000/podman/podman.sock
+/run/user/1000/gcr/ssh
+```
+
+Update the deployment templates or disable the affected services if those
+paths do not apply to your system.
+
+The gateway requires TLS files at:
+
+```text
+infrastructure/secrets/gateway/tls.crt
+infrastructure/secrets/gateway/tls.key
+```
+
+They are intentionally untracked. To generate a local self-signed certificate
+with the provided target, then place it where the chart expects it:
+
+```sh
+make certificate
+mkdir -p infrastructure/secrets/gateway
+mv secrets/tls.crt secrets/tls.key infrastructure/secrets/gateway/
+```
+
+Scalar is enabled by default, but its current deployment template has an
+invalid API version. Disable it in `infrastructure/values.yaml` before the
+first deployment:
+
+```yaml
+services:
+  scalar:
+    enabled: false
+```
 
 ## Usage
 
-Generate the Kubernetes manifest:
+Render the Helm chart into `infrastructure/kube.yaml`:
 
 ```sh
 make kube
 ```
 
-Run or replace the local workspace deployment:
+Run or replace the locally rendered deployment:
 
 ```sh
 make play
 ```
 
-Generate the manifest and start the workspace in one step:
+Stop any existing deployment, render the chart, and start it:
 
 ```sh
 make workspace
 ```
 
-Stop the deployment and remove the gateway volume:
+Stop the deployment while preserving persistent volumes:
 
 ```sh
 make down
 ```
 
-Open tool shells:
+Remove all Podman volumes whose names begin with `workspace-`:
 
 ```sh
-make opencode
-make openclaw
+make clean
 ```
 
-Expose the Podman API if tools need Docker-compatible access:
+The Makefile also provides `make certificate` for a local TLS certificate and
+`make chromium` to launch the configured host Chromium command.
+
+## Accessing Services
+
+The gateway publishes HTTP on port `8080` and HTTPS on port `8443`. With the
+default gateway configuration, enabled services are available over HTTPS at:
+
+- `https://opencode.workspace.localhost:8443`
+- `https://codium.workspace.localhost:8443`
+- `https://redis-insight.workspace.localhost:8443`
+- `https://scalar.workspace.localhost:8443` when Scalar is enabled and its
+  deployment template has been corrected
+
+## Configuration
+
+`infrastructure/values.yaml` controls service enablement, images, image pull
+policy, and host directory mounts. Service-specific tool and gateway
+configuration is under `infrastructure/configs/`.
+
+The rendered manifest and application state use Podman persistent volumes.
+`make down` leaves those volumes intact so state survives a restart; `make
+clean` permanently removes them.
+
+## Core Image
+
+The `containers/core` Git submodule contains the Containerfile for the image
+used by OpenCode and VSCodium. Build a local copy with:
 
 ```sh
-make expose-podman-api
+make -C containers/core build
 ```
+
+The default chart references `ghcr.io/alexstorm1313/core:latest`. Change the
+service image values if you want the chart to use a locally built image.
 
 ## Structure
 
-- `infrastructure/` - Helm chart and generated Kubernetes manifest
-- `infrastructure/values.yaml` - workspace configuration values
-- `infrastructure/templates/secrets/` - secret templates used by the chart
-- `containers/core/` - core container submodule
-- `Makefile` - local workspace commands
+- `infrastructure/` - Helm chart, configuration, secrets directory, and
+  generated Kubernetes manifest
+- `infrastructure/values.yaml` - workspace service and mount configuration
+- `infrastructure/configs/` - gateway and tool configuration files
+- `containers/core/` - core container image Git submodule
+- `Makefile` - local workspace lifecycle commands
 
 ## Notes
 
-- `infrastructure/kube.yaml` is generated by `make kube`.
-- The default namespace is `workspace`.
-- Some commands expect matching pods or local secret files to already exist.
+- `infrastructure/kube.yaml` is generated by `make kube` and is not tracked.
+- `workspace` is the Helm release name used in generated resource names; the
+  chart does not set a Kubernetes namespace.
+- `podman kube play` applies the rendered local manifest; this project does not
+  deploy the chart to a Kubernetes cluster.
