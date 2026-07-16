@@ -55,16 +55,6 @@ mkdir -p infrastructure/secrets/gateway
 mv secrets/tls.crt secrets/tls.key infrastructure/secrets/gateway/
 ```
 
-Scalar is enabled by default, but its current deployment template has an
-invalid API version. Disable it in `infrastructure/values.yaml` before the
-first deployment:
-
-```yaml
-services:
-  scalar:
-    enabled: false
-```
-
 ## Usage
 
 Render the Helm chart into `infrastructure/kube.yaml`:
