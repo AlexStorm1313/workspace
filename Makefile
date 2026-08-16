@@ -39,5 +39,5 @@ certificate:
 	-e STATE=workspace \
 	-e CITY=workspace \
 	-e ORGANIZATION=workspace \
-	-v ./secrets:/certs:Z \
+	-v ./infrastructure/secrets/gateway:/certs:Z \
 	docker.io/alpine/openssl:latest req -x509 -noenc -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
