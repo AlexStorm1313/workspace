@@ -13,66 +13,15 @@ data:
   ssl.conf: |
 {{ .Files.Get "configs/gateway/ssl.conf" | nindent 4 }}
 
-{{ if .Values.services.ant.enabled }}
-  ant.conf.template: |
-{{ .Files.Get "configs/gateway/ant.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.appfusion.enabled }}
-  appfusion.conf.template: |
-{{ .Files.Get "configs/gateway/appfusion.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.codium.enabled }}
-  codium.conf.template: |
-{{ .Files.Get "configs/gateway/codium.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.chromium.enabled }}
-  chromium.conf.template: |
-{{ .Files.Get "configs/gateway/chromium.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.dbgate.enabled }}
-  dbgate.conf.template: |
-{{ .Files.Get "configs/gateway/dbgate.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.ollama.enabled }}
-  ollama.conf.template: |
-{{ .Files.Get "configs/gateway/ollama.conf.template" | nindent 4 }}
-{{ end }}
-{{ if (index .Values.services "open-webui").enabled }}
-  open-webui.conf.template: |
-{{ .Files.Get "configs/gateway/open-webui.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.openclaw.enabled }}
-  openclaw.conf.template: |
-{{ .Files.Get "configs/gateway/openclaw.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.opencode.enabled }}
-  opencode.conf.template: |
-{{ .Files.Get "configs/gateway/opencode.conf.template" | nindent 4 }}
-{{ end }}
-{{ if .Values.services.openhands.enabled }}
-  openhands.conf.template: |
-{{ .Files.Get "configs/gateway/openhands.conf.template" | nindent 4 }}
-{{ end }}
-{{ if (index .Values.services "redis-insight").enabled }}
-  redis-insight.conf.template: |
-{{ .Files.Get "configs/gateway/redis-insight.conf.template" | nindent 4 }}
-{{ end }}
-{{ if (index .Values.services "scalar").enabled }}
-  scalar.conf.template: |
-{{ .Files.Get "configs/gateway/scalar.conf.template" | nindent 4 }}
-{{ end }}
-  
-  default.conf.template: |
-    server {
-      include /etc/nginx/includes/listen.conf;
+---
 
-      server_name localhost fedora-workstation workspace-gateway-pod;
-
-      include /etc/nginx/includes/ssl.conf;
-
-      location / {
-          root   /usr/share/nginx/html;
-          index  index.html index.htm;
-      }
-    }
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-gateway-templates
+data:
+{{ range $path, $_ := .Files.Glob "configs/gateway/templates/*.conf.template" }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | nindent 4 }}
+{{ end }}
 {{ end }}

@@ -1,0 +1,12 @@
+server {
+    include /etc/nginx/includes/listen.conf;
+
+    server_name localhost fedora-workstation workspace-gateway-pod;
+
+    include /etc/nginx/includes/ssl.conf;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+}

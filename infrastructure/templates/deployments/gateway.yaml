@@ -110,11 +110,7 @@ spec:
         - name: {{ .Release.Name }}-gateway-secret
           secret:
             secretName: {{ .Release.Name }}-gateway
-            items:
-              - key: tls.crt
-                path: certificate.crt
-              - key: tls.key
-                path: private.key
+            readOnly: true
 
         - name: {{ .Release.Name }}-gateway-config
           configMap:
@@ -132,9 +128,10 @@ spec:
                 path: proxy.conf
               - key: ssl.conf
                 path: ssl.conf
+
         - name: {{ .Release.Name }}-gateway-templates
           configMap:
-            name: {{ .Release.Name }}-gateway
+            name: {{ .Release.Name }}-gateway-templates
             optional: true
 
         - name: {{ .Release.Name }}-gateway-nginx
