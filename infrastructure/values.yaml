@@ -8,10 +8,6 @@ deployments:
       mountPath: /home/core/Development
 
 services:
-  ant:
-    enabled: true
-  appfusion:
-    enabled: true
   codium:
     enabled: true
     image: ghcr.io/alexstorm1313/core:latest
