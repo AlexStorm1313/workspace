@@ -14,55 +14,55 @@ data:
 {{ .Files.Get "configs/gateway/ssl.conf" | nindent 4 }}
 
 {{ if .Values.services.ant.enabled }}
-  ant.conf: |
-{{ .Files.Get "configs/gateway/ant.conf" | nindent 4 }}
+  ant.conf.template: |
+{{ .Files.Get "configs/gateway/ant.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.appfusion.enabled }}
-  appfusion.conf: |
-{{ .Files.Get "configs/gateway/appfusion.conf" | nindent 4 }}
+  appfusion.conf.template: |
+{{ .Files.Get "configs/gateway/appfusion.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.codium.enabled }}
-  codium.conf: |
-{{ .Files.Get "configs/gateway/codium.conf" | nindent 4 }}
+  codium.conf.template: |
+{{ .Files.Get "configs/gateway/codium.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.chromium.enabled }}
-  chromium.conf: |
-{{ .Files.Get "configs/gateway/chromium.conf" | nindent 4 }}
+  chromium.conf.template: |
+{{ .Files.Get "configs/gateway/chromium.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.dbgate.enabled }}
-  dbgate.conf: |
-{{ .Files.Get "configs/gateway/dbgate.conf" | nindent 4 }}
+  dbgate.conf.template: |
+{{ .Files.Get "configs/gateway/dbgate.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.ollama.enabled }}
-  ollama.conf: |
-{{ .Files.Get "configs/gateway/ollama.conf" | nindent 4 }}
+  ollama.conf.template: |
+{{ .Files.Get "configs/gateway/ollama.conf.template" | nindent 4 }}
 {{ end }}
 {{ if (index .Values.services "open-webui").enabled }}
-  open-webui.conf: |
-{{ .Files.Get "configs/gateway/open-webui.conf" | nindent 4 }}
+  open-webui.conf.template: |
+{{ .Files.Get "configs/gateway/open-webui.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.openclaw.enabled }}
-  openclaw.conf: |
-{{ .Files.Get "configs/gateway/openclaw.conf" | nindent 4 }}
+  openclaw.conf.template: |
+{{ .Files.Get "configs/gateway/openclaw.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.opencode.enabled }}
-  opencode.conf: |
-{{ .Files.Get "configs/gateway/opencode.conf" | nindent 4 }}
+  opencode.conf.template: |
+{{ .Files.Get "configs/gateway/opencode.conf.template" | nindent 4 }}
 {{ end }}
 {{ if .Values.services.openhands.enabled }}
-  openhands.conf: |
-{{ .Files.Get "configs/gateway/openhands.conf" | nindent 4 }}
+  openhands.conf.template: |
+{{ .Files.Get "configs/gateway/openhands.conf.template" | nindent 4 }}
 {{ end }}
 {{ if (index .Values.services "redis-insight").enabled }}
-  redis-insight.conf: |
-{{ .Files.Get "configs/gateway/redis-insight.conf" | nindent 4 }}
+  redis-insight.conf.template: |
+{{ .Files.Get "configs/gateway/redis-insight.conf.template" | nindent 4 }}
 {{ end }}
 {{ if (index .Values.services "scalar").enabled }}
-  scalar.conf: |
-{{ .Files.Get "configs/gateway/scalar.conf" | nindent 4 }}
+  scalar.conf.template: |
+{{ .Files.Get "configs/gateway/scalar.conf.template" | nindent 4 }}
 {{ end }}
   
-  default.conf: |
+  default.conf.template: |
     server {
       include /etc/nginx/includes/listen.conf;
 

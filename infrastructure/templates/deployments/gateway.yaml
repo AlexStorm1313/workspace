@@ -136,57 +136,6 @@ spec:
           configMap:
             name: {{ .Release.Name }}-gateway
             optional: true
-            items:
-              - key: default.conf
-                path: default.conf.template
-              {{ if .Values.services.ant.enabled }}
-              - key: ant.conf
-                path: ant.conf.template
-              {{ end }}
-              {{ if .Values.services.appfusion.enabled }}
-              - key: appfusion.conf
-                path: appfusion.conf.template
-              {{ end }}
-              {{ if .Values.services.codium.enabled }}
-              - key: codium.conf
-                path: codium.conf.template
-              {{ end }}
-              {{ if .Values.services.chromium.enabled }}
-              - key: chromium.conf
-                path: chromium.conf.template
-              {{ end }}
-              {{ if .Values.services.dbgate.enabled }}
-              - key: dbgate.conf
-                path: dbgate.conf.template
-              {{ end }}
-              {{ if .Values.services.ollama.enabled }}
-              - key: ollama.conf
-                path: ollama.conf.template
-              {{ end }}
-              {{ if (index .Values.services "open-webui").enabled }}
-              - key: open-webui.conf
-                path: open-webui.conf.template
-              {{ end }}
-              {{ if .Values.services.openclaw.enabled }}
-              - key: openclaw.conf
-                path: openclaw.conf.template
-              {{ end }}
-              {{ if .Values.services.opencode.enabled }}
-              - key: opencode.conf
-                path: opencode.conf.template
-              {{ end }}
-              {{ if .Values.services.openhands.enabled }}
-              - key: openhands.conf
-                path: openhands.conf.template
-              {{ end }}
-              {{ if (index .Values.services "redis-insight").enabled }}
-              - key: redis-insight.conf
-                path: redis-insight.conf.template
-              {{ end }}
-              {{ if (index .Values.services "scalar").enabled }}
-              - key: scalar.conf
-                path: scalar.conf.template
-              {{ end }}
 
         - name: {{ .Release.Name }}-gateway-nginx
           persistentVolumeClaim:
