@@ -45,5 +45,3 @@ services:
   workspace:
     enabled: true
     image: localhost/core:latest
-    # Host path used by rootless Podman for the SSH public-key allowlist.
-    authorizedKeysHostPath: /home/core/.ssh/authorized_keys

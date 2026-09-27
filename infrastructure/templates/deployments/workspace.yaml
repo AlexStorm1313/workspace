@@ -22,9 +22,7 @@ spec:
           image: {{ .Values.services.workspace.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["/usr/sbin/sshd"]
-          args: ["-D", "-e", "-f", "/etc/ssh/sshd_config.workspace"]
-          tty: true
-          stdin: true
+          args: ["-D", "-e"]
           ports:
             - name: ssh
               containerPort: 2222
@@ -40,8 +38,14 @@ spec:
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
+            - name: authorized_keys
+              mountPath: /home/core/.ssh/authorized_keys
+              readOnly: true
+            - name: id_ed25519.pub
+              mountPath: /home/core/.ssh/id_ed25519.pub
+              readOnly: true
             - name: {{ .Release.Name }}-workspace-configmaps
-              mountPath: /etc/ssh/sshd_config.workspace
+              mountPath: /etc/ssh/sshd_config
               subPath: sshd_config
               readOnly: true
 
@@ -59,20 +63,20 @@ spec:
               readOnly: true
             - name: podman.sock
               mountPath: /run/podman.sock
-            - name: workspace-authorized-keys
-              mountPath: /etc/ssh/authorized_keys.workspace
-              readOnly: true
-            # HostKey reads the public counterpart at this path; the agent
-            # performs all private-key operations through /run/sshd.sock.
-            - name: workspace-authorized-keys
-              mountPath: /etc/ssh/workspace_host_key.pub
-              readOnly: true
 
       volumes:
         - name: {{ .Release.Name }}-workspace-configmaps
           configMap:
             name: {{ .Release.Name }}-workspace
 
+        - name: authorized_keys
+          hostPath:
+            path: /home/core/.ssh/authorized_keys
+            type: File
+        - name: id_ed25519.pub
+          hostPath:
+            path: /home/core/.ssh/id_ed25519.pub
+            type: File
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
@@ -94,8 +98,4 @@ spec:
           hostPath:
             path: /run/user/1000/gcr/ssh
             type: Socket
-        - name: workspace-authorized-keys
-          hostPath:
-            path: {{ .Values.services.workspace.authorizedKeysHostPath | quote }}
-            type: File
 {{ end }}

@@ -1,30 +1,23 @@
 Port 2222
 ListenAddress 0.0.0.0
-# The public host key identifies the agent-backed private key. sshd obtains
-# its signatures through the forwarded host SSH agent; no private key is mounted.
-HostKey /etc/ssh/workspace_host_key
 HostKeyAgent /run/sshd.sock
+HostKey /home/core/.ssh/id_ed25519
+AuthorizedKeysFile /home/core/.ssh/authorized_keys
 PidFile /tmp/sshd.pid
-AuthorizedKeysFile /etc/ssh/authorized_keys.workspace
-# Fedora's openssh-server installs the SFTP subsystem here.
 Subsystem sftp /usr/libexec/openssh/sftp-server
 AuthenticationMethods publickey
 PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitEmptyPasswords no
 PermitRootLogin no
-# The authorized-keys file is a rootless-Podman hostPath. Its host UID and
-# ownership cannot be validated meaningfully in the container user namespace,
-# so rely on its read-only mount instead.
 StrictModes no
 AllowUsers core
+Compression no
 AllowAgentForwarding no
 AllowTcpForwarding no
 GatewayPorts no
 X11Forwarding no
 PermitUserEnvironment no
-# sshd builds a fresh login environment. Set the image's intended session
-# values server-side rather than accepting client-supplied environment variables.
 SetEnv CONTAINER_HOST=unix:///run/podman.sock HOME=/home/core SHELL=/bin/bash SSH_AUTH_SOCK=/run/sshd.sock PATH=/home/core/.cargo/bin:/home/core/.bun/bin:/home/core/.local/bin:/usr/local/bin:/usr/bin
 UsePAM no
 UseDNS no
