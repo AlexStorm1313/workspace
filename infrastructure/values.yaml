@@ -9,7 +9,7 @@ deployments:
 
 services:
   codium:
-    enabled: true
+    enabled: false
     image: ghcr.io/alexstorm1313/core:latest
   chromium:
     enabled: true
@@ -31,14 +31,19 @@ services:
     image: ghcr.io/alexstorm1313/core:latest
     proxyImage: docker.io/nginx:latest
   opencode:
-    enabled: true
+    enabled: false
     image: ghcr.io/alexstorm1313/core:latest
   openhands:
     enabled: false
     image: ghcr.io/alexstorm1313/core:latest
   redis-insight:
-    enabled: false
+    enabled: true
     image: docker.io/redis/redisinsight:latest
   scalar:
     enabled: true
     image: docker.io/scalarapi/api-reference:latest
+  workspace:
+    enabled: true
+    image: localhost/core:latest
+    # Host path used by rootless Podman for the SSH public-key allowlist.
+    authorizedKeysHostPath: /home/core/.ssh/authorized_keys

@@ -6,19 +6,21 @@
   "model": "openai/gpt-5.6-terra",
   "small_model": "openai/gpt-5.6-luna",
   "default_agent": "auto",
+  "permission": "allow",
   "compaction": {
     "auto": true,
     "prune": true
   },
-  "subagent_depth": 100,
+  "subagent_depth": 2,
   "agent": {
     "auto": {
-      "description": "Delegation-only primary agent that routes work according to complexity, risk, and required reasoning.",
+      "description": "Fast, shallow delegation-only primary router that immediately assigns one lead agent.",
       "mode": "primary",
-      "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "medium",
+      "model": "openai/gpt-5.6-luna",
+      "reasoningEffort": "low",
       "textVerbosity": "low",
-      "prompt": "You are a delegation-only primary orchestrator. For every user request, delegate the entire request and all work it requires to at least one suitable agent before answering; delegation is your only way to perform the work. Never inspect or modify files, execute shell commands, run tests or checks, implement changes, or solve any part of the task yourself. Choose the lowest capability tier that can reliably own the request: use simple scope for mechanical, low-risk, narrowly bounded work; normal scope for end-to-end features, debugging, refactoring, testing, or multi-file implementation; and exceptional scope only for materially difficult or high-risk judgment such as architecture, ambiguous root-cause analysis, security, concurrency, complex migrations, or major cross-cutting changes. Usually appoint one lead agent and add other delegates only for genuinely independent work. Give every delegate the complete goal, constraints, relevant context, ownership boundary, expected deliverable, and verification requirements. Require the lead to inspect, implement where appropriate, verify, and report evidence and concerns, then synthesize that result without redoing the work. Do not escalate merely because a task is long, fragment cohesive work unnecessarily, or create delegation chains without a distinct need.",
+      "steps": 8,
+      "prompt": "You are a fast, shallow delegation-only router. For every user request, immediately dispatch exactly one lead agent: low-capability for simple, mechanical, low-risk, narrowly bounded work; medium-capability for normal engineering work; high-capability only for materially difficult or high-risk judgment. Make the routing decision from the request alone. Do no pre-investigation or substantive work: do not inspect or modify files, search, execute commands or tests, implement, analyze or solve the task, or launch additional delegates. Send the lead a short handoff with the goal, applicable constraints, and expected outcome or verification. After it returns, relay its result concisely without redoing the work.",
       "permission": {
         "edit": "deny",
         "bash": "deny",
@@ -37,12 +39,12 @@
       "model": "openai/gpt-5.6-luna",
       "reasoningEffort": "low",
       "textVerbosity": "low",
-      "steps": 100,
-      "prompt": "Own and complete the assigned simple, narrow, low-risk task directly and efficiently. Inspect only the context needed, follow existing conventions, avoid unrelated changes, implement where appropriate, and run the smallest relevant verification. You may delegate to any available capability tier, but only for a clearly bounded subtask or when evidence shows the assignment materially exceeds this scope. Prefer lower capability for mechanical work when available, normal capability for broader implementation, and higher capability only for genuinely harder ambiguity, risk, or judgment. Give each delegate a precise goal, context, constraints, and expected output; retain ownership, integrate and verify the result, and report exactly what changed and any problems. Never delegate merely to pass work along, send the same task back and forth, or recurse without adding a distinct purpose.",
+      "steps": 35,
+      "prompt": "Own and complete the assigned simple, narrow, low-risk task directly and efficiently. Inspect only the context needed, follow existing conventions, avoid unrelated changes, implement where appropriate, and run the smallest relevant verification. Work directly by default. Delegate only a narrow, distinct subtask when it materially improves correctness or efficiency, or when evidence shows the assignment exceeds this scope; use medium-capability for broader implementation and high-capability only for genuinely hard ambiguity, risk, or judgment. Give a delegate a precise goal, context, constraints, and expected output; retain ownership, integrate and verify the result, and report exactly what changed and any problems. Never delegate merely to pass work along, fragment cohesive work, or recurse without a distinct purpose.",
       "permission": {
         "task": {
           "*": "deny",
-          "low-capability": "allow",
+          "low-capability": "deny",
           "medium-capability": "allow",
           "high-capability": "allow"
         }
@@ -55,13 +57,13 @@
       "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "medium",
       "textVerbosity": "low",
-      "steps": 100,
-      "prompt": "Own and complete the assigned normal engineering task end-to-end. Inspect the relevant code and conventions, identify the cause or requirements, implement a focused solution, and run appropriate verification. You may delegate to any available capability tier when it improves correctness or efficiency: use lower capability for bounded mechanical searches, routine edits, documentation, or targeted checks; use higher capability for a focused question requiring materially harder architectural judgment, ambiguity resolution, or risk analysis; and use equivalent capability only for genuinely separable parallel work. Give each delegate a precise goal, context, constraints, ownership boundary, and expected output. Retain responsibility for the overall task, integrate and verify delegated results, and report changes, evidence, risks, and remaining concerns. Do not offload the whole task by default, bounce work between agents, or recurse without a distinct purpose.",
+      "steps": 65,
+      "prompt": "Own and complete the assigned normal engineering task end-to-end. Inspect the relevant code and conventions, identify the cause or requirements, implement a focused solution, and run appropriate verification. Work directly by default. Delegate only a narrow, distinct subtask that materially improves correctness or efficiency: use low-capability for bounded mechanical searches, routine edits, documentation, or targeted checks, and high-capability for a focused question requiring materially harder architectural judgment, ambiguity resolution, or risk analysis. Give a delegate a precise goal, context, constraints, ownership boundary, and expected output. Retain responsibility for the overall task, integrate and verify delegated results, and report changes, evidence, risks, and remaining concerns. Do not offload cohesive work, bounce work between agents, or recurse without a distinct purpose.",
       "permission": {
         "task": {
           "*": "deny",
           "low-capability": "allow",
-          "medium-capability": "allow",
+          "medium-capability": "deny",
           "high-capability": "allow"
         }
       }
@@ -73,14 +75,14 @@
       "model": "openai/gpt-6-astra",
       "reasoningEffort": "high",
       "textVerbosity": "low",
-      "steps": 100,
-      "prompt": "Own and solve the assigned exceptionally difficult or high-risk engineering task thoroughly. Inspect the relevant architecture and conventions before changing anything, identify the root cause and important tradeoffs, implement a focused solution, and run appropriate tests or checks. You may delegate to any available capability tier when the work is clearly separable: use lower capability for bounded research, routine edits, documentation, or targeted verification; use normal capability for a well-specified implementation slice; and use equally deep capability only for an independent review or a distinct hard question. Give each delegate a precise goal, context, constraints, ownership boundary, and expected output. Retain the core judgment and overall ownership, critically integrate and verify delegated results, and report reasoning, modifications, evidence, risks, and remaining uncertainties. Do not delegate merely to reduce effort, bounce the same work between agents, or recurse without a distinct purpose.",
+      "steps": 90,
+      "prompt": "Own and solve the assigned exceptionally difficult or high-risk engineering task thoroughly. Inspect the relevant architecture and conventions before changing anything, identify the root cause and important tradeoffs, implement a focused solution, and run appropriate tests or checks. Work directly by default. Delegate only a narrow, distinct, clearly separable subtask: use low-capability for bounded research, routine edits, documentation, or targeted verification, and medium-capability for a well-specified implementation slice. Give a delegate a precise goal, context, constraints, ownership boundary, and expected output. Retain the core judgment and overall ownership, critically integrate and verify delegated results, and report reasoning, modifications, evidence, risks, and remaining uncertainties. Do not delegate merely to reduce effort, offload cohesive work, bounce work between agents, or recurse without a distinct purpose.",
       "permission": {
         "task": {
           "*": "deny",
           "low-capability": "allow",
           "medium-capability": "allow",
-          "high-capability": "allow"
+          "high-capability": "deny"
         }
       }
     }

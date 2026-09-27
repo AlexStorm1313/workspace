@@ -3,6 +3,8 @@
     "editor.fontLigatures": true,
     "editor.formatOnSave": true,
     "editor.inlineSuggest.syntaxHighlightingEnabled": true,
+    "editor.quickSuggestionsDelay": 0,
+    "editor.suggest.shareSuggestSelections": true,
     "files.autoSave": "onWindowChange",
     "workbench.colorTheme": "Dark Modern",
     "workbench.startupEditor": "none",
