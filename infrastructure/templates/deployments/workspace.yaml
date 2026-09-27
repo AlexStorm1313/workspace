@@ -38,15 +38,15 @@ spec:
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
-            - name: authorized_keys
-              mountPath: /home/core/.ssh/authorized_keys
-              readOnly: true
-            - name: id_ed25519.pub
-              mountPath: /home/core/.ssh/id_ed25519.pub
-              readOnly: true
             - name: {{ .Release.Name }}-workspace-configmaps
               mountPath: /etc/ssh/sshd_config
               subPath: sshd_config
+              readOnly: true
+            - name: id_ed25519.pub
+              mountPath: /etc/ssh/id_ed25519.pub
+              readOnly: true
+            - name: authorized_keys
+              mountPath: /etc/ssh/authorized_keys
               readOnly: true
 
             {{ range .Values.deployments.volumes }}

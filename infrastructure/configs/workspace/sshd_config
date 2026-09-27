@@ -1,8 +1,8 @@
 Port 2222
 ListenAddress 0.0.0.0
 HostKeyAgent /run/sshd.sock
-HostKey /home/core/.ssh/id_ed25519
-AuthorizedKeysFile /home/core/.ssh/authorized_keys
+HostKey /etc/ssh/id_ed25519
+AuthorizedKeysFile /etc/ssh/authorized_keys
 PidFile /tmp/sshd.pid
 Subsystem sftp /usr/libexec/openssh/sftp-server
 AuthenticationMethods publickey
@@ -10,7 +10,7 @@ PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitEmptyPasswords no
 PermitRootLogin no
-StrictModes no
+StrictModes yes
 AllowUsers core
 Compression no
 AllowAgentForwarding no
