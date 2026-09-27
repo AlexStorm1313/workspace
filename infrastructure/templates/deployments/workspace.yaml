@@ -40,8 +40,6 @@ spec:
               readOnly: true
             - name: {{ .Release.Name }}-ssh
               mountPath: /home/core/.ssh
-            - name: known_hosts
-              mountPath: /home/core/.ssh/known_hosts
             - name: {{ .Release.Name }}-workspace-configmaps
               mountPath: /etc/ssh/sshd_config
               subPath: sshd_config
@@ -84,10 +82,6 @@ spec:
 
         - name: {{ .Release.Name }}-ssh
           emptyDir: {}
-        - name: known_hosts
-          hostPath:
-            path: /home/core/.ssh/known_hosts
-            type: File
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
