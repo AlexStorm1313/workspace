@@ -1,7 +1,7 @@
 deployments:
   containers:
-    pullPolicy: IfNotPresent
-    # pullPolicy: Always
+    # pullPolicy: IfNotPresent
+    pullPolicy: Always
   volumes:
   volumeMounts:
     - name: development
