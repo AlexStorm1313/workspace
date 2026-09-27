@@ -6,4 +6,6 @@ metadata:
 data:
   .gitconfig: |
 {{ .Files.Get "configs/workspace/.gitconfig" | nindent 4 }}
+  sshd_config: |
+{{ .Files.Get "configs/workspace/sshd_config" | nindent 4 }}
 {{ end }}

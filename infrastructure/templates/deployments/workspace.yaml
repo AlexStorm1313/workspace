@@ -15,104 +15,14 @@ spec:
       labels:
         app: {{ .Release.Name }}-workspace
     spec:
-      # Apply fsGroup permissions to the emptyDir even though its initial GID
-      # is already 0; the non-root init container must create its runtime data.
-      securityContext:
-        fsGroup: 0
-        fsGroupChangePolicy: "Always"
-        runAsGroup: 0
-        runAsNonRoot: true
-        runAsUser: 1001
-        # hostPath volumes retain the host SELinux label.  Match the other
-        # developer-facing deployments so `core` can access those bind mounts.
-        seLinuxOptions:
-          type: spc_t
-        seccompProfile:
-          type: RuntimeDefault
-      initContainers:
-        # sshd runs as the image's non-root `core` user and obtains host-key
-        # operations through the mounted host SSH agent.
-        - name: ssh-runtime
-          # Podman kube play realizes emptyDir as a root-owned volume and does
-          # not apply fsGroup ownership.  Initialize it as root, then hand its
-          # contents to the unprivileged sshd process.
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
-            privileged: false
-            readOnlyRootFilesystem: false
-            runAsGroup: 0
-            runAsNonRoot: false
-            runAsUser: 0
-            seccompProfile:
-              type: RuntimeDefault
-          image: {{ .Values.services.workspace.image }}
-          imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["/bin/sh", "-ec"]
-          args:
-            - |
-               umask 077
-               cat > /run/sshd/sshd_config <<'EOF'
-               Port 2222
-               ListenAddress 0.0.0.0
-               # Load host identities and request host-key signatures through
-               # the forwarded host SSH agent. No private key is mounted.
-               HostKeyAgent /run/sshd.sock
-               PidFile /run/sshd/sshd.pid
-                AuthorizedKeysFile /run/sshd/authorized_keys
-                # Fedora's openssh-server installs the SFTP subsystem here.
-                Subsystem sftp /usr/libexec/openssh/sftp-server
-                AuthenticationMethods publickey
-               PasswordAuthentication no
-               KbdInteractiveAuthentication no
-               PermitEmptyPasswords no
-               PermitRootLogin no
-               # The authorized-keys file is a rootless-Podman hostPath. Its
-               # host UID and ownership cannot be validated meaningfully in
-               # the container user namespace, so rely on its read-only mount.
-               StrictModes no
-               AllowUsers core
-               AllowAgentForwarding no
-               AllowTcpForwarding no
-                GatewayPorts no
-                X11Forwarding no
-                PermitUserEnvironment no
-                # sshd builds a fresh login environment. Set the image's
-                # intended session values server-side rather than accepting
-                # client-supplied environment variables.
-                SetEnv CONTAINER_HOST=unix:///run/podman.sock HOME=/home/core SHELL=/bin/bash SSH_AUTH_SOCK=/run/sshd.sock PATH=/home/core/.cargo/bin:/home/core/.bun/bin:/home/core/.local/bin:/usr/local/bin:/usr/bin
-                UsePAM no
-               UseDNS no
-               LogLevel VERBOSE
-               EOF
-               # In rootless Podman the pod's UID mapping does not permit this
-               # init container to chown files to UID 1001. Keep the runtime
-               # files owned by the mapped root user and grant the server's
-               # configured group (0) only the access it needs.
-               chmod 0770 /run/sshd
-               chmod 0644 /run/sshd/sshd_config
-          volumeMounts:
-            - name: ssh-runtime
-              mountPath: /run/sshd
+      {{ include "pod.securityContext" . | indent 6 }}
       containers:
         - name: server
-          # sshd may only authenticate the unprivileged image account.
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
-            privileged: false
-            readOnlyRootFilesystem: false
-            runAsGroup: 0
-            runAsNonRoot: true
-            runAsUser: 1001
-            seccompProfile:
-              type: RuntimeDefault
+          {{ include "container.securityContext" . | indent 10 }}
           image: {{ .Values.services.workspace.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["/usr/sbin/sshd"]
-          args: ["-D", "-e", "-f", "/run/sshd/sshd_config"]
+          args: ["-D", "-e", "-f", "/etc/ssh/sshd_config.workspace"]
           tty: true
           stdin: true
           ports:
@@ -130,6 +40,10 @@ spec:
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
+            - name: {{ .Release.Name }}-workspace-configmaps
+              mountPath: /etc/ssh/sshd_config.workspace
+              subPath: sshd_config
+              readOnly: true
 
             {{ range .Values.deployments.volumes }}
             - name: {{ . }}
@@ -145,10 +59,13 @@ spec:
               readOnly: true
             - name: podman.sock
               mountPath: /run/podman.sock
-            - name: ssh-runtime
-              mountPath: /run/sshd
             - name: workspace-authorized-keys
-              mountPath: /run/sshd/authorized_keys
+              mountPath: /etc/ssh/authorized_keys.workspace
+              readOnly: true
+            # HostKey reads the public counterpart at this path; the agent
+            # performs all private-key operations through /run/sshd.sock.
+            - name: workspace-authorized-keys
+              mountPath: /etc/ssh/workspace_host_key.pub
               readOnly: true
 
       volumes:
@@ -177,8 +94,6 @@ spec:
           hostPath:
             path: /run/user/1000/gcr/ssh
             type: Socket
-        - name: ssh-runtime
-          emptyDir: {}
         - name: workspace-authorized-keys
           hostPath:
             path: {{ .Values.services.workspace.authorizedKeysHostPath | quote }}
