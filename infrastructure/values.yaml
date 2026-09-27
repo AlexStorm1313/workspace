@@ -44,4 +44,4 @@ services:
     image: docker.io/scalarapi/api-reference:latest
   workspace:
     enabled: true
-    image: localhost/core:latest
+    image: ghcr.io/alexstorm1313/core:latest
