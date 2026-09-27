@@ -38,6 +38,8 @@ spec:
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
+            - name: {{ .Release.Name }}-ssh
+              mountPath: /home/core/.ssh
             - name: known_hosts
               mountPath: /home/core/.ssh/known_hosts
             - name: {{ .Release.Name }}-workspace-configmaps
@@ -79,6 +81,9 @@ spec:
           hostPath:
             path: /home/core/.ssh/id_ed25519.pub
             type: File
+
+        - name: {{ .Release.Name }}-ssh
+          emptyDir: {}
         - name: known_hosts
           hostPath:
             path: /home/core/.ssh/known_hosts
