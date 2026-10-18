@@ -1,9 +1,0 @@
-[user]
-email = alexbrasser@gmail.com
-name = Alex Brasser
-
-[init]
-defaultBranch = main
-
-[safe]
-directory = *

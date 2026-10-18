@@ -1,7 +1,7 @@
 deployments:
   containers:
-    # pullPolicy: IfNotPresent
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
+    # pullPolicy: Always
   volumes:
   volumeMounts:
     - name: development
@@ -9,14 +9,17 @@ deployments:
 
 services:
   codium:
-    enabled: false
-    image: ghcr.io/alexstorm1313/core:latest
+    enabled: true
+    image: localhost/core:latest
   chromium:
     enabled: true
     image: lscr.io/linuxserver/chromium:latest
   dbgate:
     enabled: false
     image: docker.io/dbgate/dbgate:latest
+  dsh:
+    enabled: true
+    image: localhost/core:latest
   gateway:
     enabled: true
     image: docker.io/nginx:latest
@@ -27,15 +30,12 @@ services:
     enabled: false
     image: ghcr.io/open-webui/open-webui:main
   openclaw:
-    enabled: false
-    image: ghcr.io/alexstorm1313/core:latest
+    enabled: true
+    image: localhost/core:latest
     proxyImage: docker.io/nginx:latest
   opencode:
-    enabled: false
-    image: ghcr.io/alexstorm1313/core:latest
-  openhands:
-    enabled: false
-    image: ghcr.io/alexstorm1313/core:latest
+    enabled: true
+    image: localhost/core:latest
   redis-insight:
     enabled: true
     image: docker.io/redis/redisinsight:latest
@@ -44,4 +44,4 @@ services:
     image: docker.io/scalarapi/api-reference:latest
   workspace:
     enabled: true
-    image: ghcr.io/alexstorm1313/core:latest
+    image: localhost/core:latest

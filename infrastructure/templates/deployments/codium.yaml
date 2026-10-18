@@ -61,18 +61,13 @@ spec:
               mountPath: /home/core/.ssh
               subPath: .ssh
 
-            - name: {{ .Release.Name }}-codium-configmaps
+            - name: {{ .Release.Name }}-workspace-configmaps
               mountPath: /home/core/.gitconfig
               subPath: .gitconfig
               readOnly: true
             - name: {{ .Release.Name }}-codium-configmaps
               mountPath: /home/core/.vscodium-server/data/Machine/settings.json
               subPath: settings.json
-              readOnly: true
-
-            - name: {{ .Release.Name }}-codium-secrets
-              mountPath: /home/core/.wakatime.cfg
-              subPath: wakatime.cfg
               readOnly: true
 
             {{ range .Values.deployments.volumes }}
@@ -91,6 +86,15 @@ spec:
               mountPath: /run/podman.sock
 
       volumes:
+        - name: {{ .Release.Name }}-codium-codium
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-codium-codium
+
+        - name: {{ .Release.Name }}-workspace-configmaps
+          configMap:
+            name: {{ .Release.Name }}-workspace
+            optional: true
+
         - name: {{ .Release.Name }}-codium-secrets
           secret:
             secretName: {{ .Release.Name }}-codium
@@ -99,10 +103,6 @@ spec:
           configMap:
             name: {{ .Release.Name }}-codium
             optional: true
-
-        - name: {{ .Release.Name }}-codium-codium
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-codium-codium
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
