@@ -17,6 +17,9 @@ services:
   dbgate:
     enabled: false
     image: docker.io/dbgate/dbgate:latest
+  dsh:
+    enabled: true
+    image: localhost/core:latest
   gateway:
     enabled: true
     image: docker.io/nginx:latest
@@ -27,7 +30,7 @@ services:
     enabled: false
     image: ghcr.io/open-webui/open-webui:main
   openclaw:
-    enabled: false
+    enabled: true
     image: localhost/core:latest
     proxyImage: docker.io/nginx:latest
   opencode:

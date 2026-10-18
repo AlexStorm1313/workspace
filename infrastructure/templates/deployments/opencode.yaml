@@ -35,7 +35,7 @@ spec:
           image: {{ .Values.services.opencode.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "--"]
-          args: ["bunx", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
+          args: ["bunx", "--bun", "opencode", "serve", "--hostname", "0.0.0.0", "--port", "3000"]
           env:
             - name: CONTAINER_HOST
               value: unix:///run/podman.sock
