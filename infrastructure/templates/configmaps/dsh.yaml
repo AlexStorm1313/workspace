@@ -4,6 +4,10 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-dsh
 data:
-  nginx.conf: |
-{{ .Files.Get "configs/dsh/nginx.conf" | nindent 4 }}
+  cordis.patch.yml: |
+{{ .Files.Get "configs/dsh/cordis.patch.yml" | nindent 4 }}
+  no-auth-index.js: |
+{{ .Files.Get "configs/dsh/plugins/dsh-no-auth/index.js" | nindent 4 }}
+  no-auth-package.json: |
+{{ .Files.Get "configs/dsh/plugins/dsh-no-auth/package.json" | nindent 4 }}
 {{ end }}

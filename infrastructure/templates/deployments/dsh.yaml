@@ -12,23 +12,23 @@ spec:
       app: {{ .Release.Name }}-dsh
   template:
     metadata:
+      annotations:
+        checksum/dsh-config: {{ include (print $.Template.BasePath "/configmaps/dsh.yaml") . | sha256sum }}
       labels:
         app: {{ .Release.Name }}-dsh
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
-      # initContainers:
-      #   - name: mkdir
-      #     {{ include "container.securityContext" . | indent 10 }}
-      #     image: docker.io/busybox:latest
-      #     command: ["/bin/mkdir"]
-      #     args: ["-p",
-      #       "/mnt/{{ .Release.Name }}-dsh-dsh/.local",
-      #       "/mnt/{{ .Release.Name }}-dsh-dsh/.cache",
-      #       "/mnt/{{ .Release.Name }}-dsh-dsh/.config",
-      #     ]
-      #     volumeMounts:
-      #       - name: {{ .Release.Name }}-dsh-dsh
-      #         mountPath: /mnt/{{ .Release.Name }}-dsh-dsh
+      initContainers:
+        - name: mkdir
+          {{ include "container.securityContext" . | indent 10 }}
+          image: docker.io/busybox:latest
+          command: ["/bin/mkdir"]
+          args: ["-p",
+            "/mnt/{{ .Release.Name }}-dsh-dsh/.dsh",
+          ]
+          volumeMounts:
+            - name: {{ .Release.Name }}-dsh-dsh
+              mountPath: /mnt/{{ .Release.Name }}-dsh-dsh
       containers:
         - name: server
           {{ include "container.securityContext" . | indent 10 }}
@@ -41,7 +41,17 @@ spec:
               value: unix:///run/podman.sock
             - name: SSH_AUTH_SOCK
               value: /run/sshd.sock
-          # volumeMounts:
+          volumeMounts:
+            - name: {{ .Release.Name }}-dsh-dsh
+              mountPath: /home/core/.dsh
+              subPath: .dsh
+            - name: {{ .Release.Name }}-dsh-configmaps
+              mountPath: /home/core/.dsh/cordis.patch.yml
+              subPath: cordis.patch.yml
+              readOnly: true
+            - name: {{ .Release.Name }}-dsh-plugin
+              mountPath: /home/core/.dsh/plugins/dsh-no-auth
+              readOnly: true
           #   - name: {{ .Release.Name }}-dsh-dsh
           #     mountPath: /home/core/.local
           #     subPath: .local
@@ -92,7 +102,18 @@ spec:
         - name: {{ .Release.Name }}-dsh-configmaps
           configMap:
             name: {{ .Release.Name }}-dsh
-            optional: true
+            items:
+              - key: cordis.patch.yml
+                path: cordis.patch.yml
+                
+        - name: {{ .Release.Name }}-dsh-plugin
+          configMap:
+            name: {{ .Release.Name }}-dsh
+            items:
+              - key: no-auth-index.js
+                path: index.js
+              - key: no-auth-package.json
+                path: package.json
 
         {{ range .Values.deployments.volumes }}
         - name: {{ . }}
