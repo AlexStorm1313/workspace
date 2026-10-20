@@ -16,6 +16,7 @@ spec:
         app: {{ .Release.Name }}-hermes
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
+      # Both containers share Hermes home below, but local discovery also validates PIDs.
       shareProcessNamespace: true
 
       containers:
@@ -23,8 +24,15 @@ spec:
           {{ include "container.securityContext" . | indent 10 }}
           image: {{ .Values.services.hermes.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["tini", "--"]
+          # The shared PID namespace makes the pod infra process PID 1.
+          command: ["tini", "-s", "--"]
           args: ["hermes", "gateway", "run"]
+          env:
+            - name: HERMES_HOME
+              value: /home/core/.hermes
+          volumeMounts:
+            - name: {{ .Release.Name }}-hermes-hermes
+              mountPath: /home/core/.hermes
 
         - name: proxy
           securityContext:
@@ -42,9 +50,15 @@ spec:
           {{ include "container.securityContext" . | indent 10 }}
           image: {{ .Values.services.hermes.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["tini", "--"]
+          command: ["tini", "-s", "--"]
           # Passwordless mode requires a real loopback bind. Do not set public_url.
-          args: ["hermes", "dashboard", "--host", "127.0.0.1", "--port", "9119", "--no-open"]
+          args: ["hermes", "dashboard", "--skip-build", "--host", "127.0.0.1", "--port", "9119", "--no-open"]
+          env:
+            - name: HERMES_HOME
+              value: /home/core/.hermes
+          volumeMounts:
+            - name: {{ .Release.Name }}-hermes-hermes
+              mountPath: /home/core/.hermes
           # env:
           #   - name: CONTAINER_HOST
           #     value: unix:///run/podman.sock
@@ -86,6 +100,8 @@ spec:
         
 
       volumes:  
+        # Mount the same PVC root; pod fsGroup grants GID 0 volume access.
+        # Image dependencies must live outside this mount, not just the /opt/hermes checkout.
         - name: {{ .Release.Name }}-hermes-hermes
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-hermes-hermes
