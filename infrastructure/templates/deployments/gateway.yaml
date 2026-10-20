@@ -50,8 +50,10 @@ spec:
           ports:
             - containerPort: 8080
               hostPort: 8080
+              hostIP: 127.0.0.1
             - containerPort: 8443
               hostPort: 8443
+              hostIP: 127.0.0.1
           volumeMounts:
             - name: {{ .Release.Name }}-gateway-nginx
               mountPath: /var/cache/nginx

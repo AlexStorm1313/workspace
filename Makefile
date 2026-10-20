@@ -1,37 +1,43 @@
-.PHONY: kube play down workspace clean certificate mkcert
+.PHONY: kube play down workspace clean certificate mkcert tls
 
 NAMESPACE=workspace
 USERNS=--userns=keep-id:uid=1001,gid=0
 
 # Generate deployment from Helm Chart
-kube:
+kube: tls
 	@podman run -i --rm -v ./infrastructure:/infrastructure:Z -w /infrastructure --entrypoint sh docker.io/alpine/helm:latest -c 'helm template ${NAMESPACE} --dry-run=client --values ./values.yaml . > ./kube.yaml.tmp && mv ./kube.yaml.tmp ./kube.yaml'
 
 # Run the deployment with Podman
 play:
-	@podman kube play --replace $(USERNS) ./infrastructure/kube.yaml
-	@GATEWAY_INFRA=$$(podman pod inspect --format '{{.InfraContainerID}}' workspace-gateway-pod); \
-	podman network disconnect --force podman-default-kube-network $$GATEWAY_INFRA; \
+	@podman kube play --replace --start=false $(USERNS) ./infrastructure/kube.yaml
+	@GATEWAY_INFRA=$$(podman pod inspect --format '{{.InfraContainerID}}' workspace-gateway-pod) && \
+	podman network disconnect --force podman-default-kube-network $$GATEWAY_INFRA && \
 	podman network connect \
 		--alias website.appfusion.workspace-gateway-pod \
 		podman-default-kube-network $$GATEWAY_INFRA
+	@podman pod start $$(podman pod ps --filter 'name=^${NAMESPACE}-.*-pod$$' --format '{{.ID}}')
 	@podman pod ls | grep ${NAMESPACE}
 
 # Stop the deployment with Podman
 down:
-	@podman kube down --force ./infrastructure/kube.yaml
+	@if test -f ./infrastructure/kube.yaml; then podman kube down ./infrastructure/kube.yaml; fi
 
-# Build containers, Generate deployment and Run the deployment with Podman
-workspace:
-	@make down
-	@make kube
-	@make play
+# Stop existing pods, render the chart, and start the workspace with Podman
+workspace: tls
+	@$(MAKE) down
+	@$(MAKE) kube
+	@$(MAKE) play
 
 # Remove all volumes
 clean:
 	@podman volume ls --quiet --filter 'name=^${NAMESPACE}-' | xargs -r podman volume rm --force
 
 # Generate a local development TLS certificate for localhost subdomains
+tls:
+	@if test -s ./infrastructure/secrets/gateway/tls.crt && test -s ./infrastructure/secrets/gateway/tls.key; then :; \
+	elif test ! -e ./infrastructure/secrets/gateway/tls.crt && test ! -e ./infrastructure/secrets/gateway/tls.key; then $(MAKE) certificate; \
+	else printf '%s\n' 'Incomplete gateway TLS pair; restore both tls.crt and tls.key before starting.' >&2; exit 1; fi
+
 certificate:
 	@mkdir -p ./infrastructure/secrets/gateway
 	@umask 077; podman run --rm \

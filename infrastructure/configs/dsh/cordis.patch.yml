@@ -1,5 +1,0 @@
-- insert:
-    - id: no-auth
-      name: '/home/core/.dsh/plugins/dsh-no-auth/index.js'
-      config:
-        allowHosts: ["dsh.workspace.localhost:8443"]
