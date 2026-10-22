@@ -15,41 +15,121 @@ spec:
       labels:
         app: {{ .Release.Name }}-ollama
     spec:
-      initContainers: 
-        - name: pull
+      initContainers:
+        - name: provision-model
           image: {{ .Values.services.ollama.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
-          command: ["/bin/sh", "-c"]
+          env:
+            - name: HOME
+              value: "/"
+            # - name: OLLAMA_MODELS
+            #   value: "/.ollama/models"
+            - name: OLLAMA_HOST
+              value: "127.0.0.1:11434"
+          command: ["/bin/sh", "-ec"]
           args:
             - |
+              server_pid=
+              qwen_pid=
+              hermes_pid=
+              ministral14_pid=
+              ministral8_pid=
+              cleanup() {
+                trap '' INT TERM
+                for pid in $qwen_pid $hermes_pid $ministral14_pid $ministral8_pid $server_pid; do
+                  kill "$pid" 2>/dev/null || true
+                done
+                for pid in $qwen_pid $hermes_pid $ministral14_pid $ministral8_pid $server_pid; do
+                  wait "$pid" 2>/dev/null || true
+                done
+              }
+              trap cleanup 0
+              trap 'exit 1' INT TERM
               ollama serve &
+              server_pid=$!
+              attempts=0
               until ollama list >/dev/null 2>&1; do
+                attempts=$((attempts + 1))
+                if ! kill -0 "$server_pid" 2>/dev/null || [ "$attempts" -ge 60 ]; then
+                  printf '%s\n' 'Ollama provisioning server failed to become ready' >&2
+                  exit 1
+                fi
                 sleep 1
               done
-              ollama pull gemma4:latest
-          securityContext:
-            privileged: true
+              ollama pull qwen3.5:9b &
+              qwen_pid=$!
+              ollama pull hermes3:8b &
+              hermes_pid=$!
+              ollama pull ministral-3:14b &
+              ministral14_pid=$!
+              ollama pull ministral-3:8b &
+              ministral8_pid=$!
+              # Wait for each explicitly: a bare wait can hide pull failures.
+              status=0
+              wait "$qwen_pid" || status=1
+              qwen_pid=
+              wait "$hermes_pid" || status=1
+              hermes_pid=
+              wait "$ministral14_pid" || status=1
+              ministral14_pid=
+              wait "$ministral8_pid" || status=1
+              ministral8_pid=
+              exit "$status"
+          # Pull/create do not load the model and require no GPU devices.
           volumeMounts:
             - name: {{ .Release.Name }}-ollama-ollama
-              mountPath: /root/.ollama
+              mountPath: /.ollama
       containers:
         - name: server
           image: {{ .Values.services.ollama.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           env:
-            # - name: OLLAMA_VULKAN
-            #   value: true
-          # Required for GPU passthrough
+            - name: HOME
+              value: "/"
+            # - name: OLLAMA_MODELS
+            #   value: "/.ollama/models"
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:11434"
+            - name: OLLAMA_NUM_PARALLEL
+              value: "1"
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
+            # Keep the server default at 64K; configured aliases override this.
+            - name: OLLAMA_CONTEXT_LENGTH
+              value: "65536"
+            - name: OLLAMA_FLASH_ATTENTION
+              value: "1"
+            - name: OLLAMA_KV_CACHE_TYPE
+              # value: "q8_0"
+              value: "f16"
+            - name: OLLAMA_KEEP_ALIVE
+              value: "30m"
+            - name: OLLAMA_DEBUG
+              value: "1"
+            - name: OLLAMA_NO_CLOUD
+              value: "1"
+          # Retain privileged mode for device access through the /dev/dri bind mount.
           securityContext:
             privileged: true
           volumeMounts:
             - name: {{ .Release.Name }}-ollama-ollama
-              mountPath: /root/.ollama
-          resources:
-            limits:
-              amd.com/gpu: 1 # requesting 1 GPU
+              mountPath: /.ollama
+            - name: kfd
+              mountPath: /dev/kfd
+            - name: dri
+              mountPath: /dev/dri
       volumes:
         - name: {{ .Release.Name }}-ollama-ollama
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-ollama-ollama
+        # Podman kube play maps CharDevice hostPaths as devices; /dev/dri is
+        # a directory bind mount. Neither path should be created if missing.
+        - name: kfd
+          hostPath:
+            path: /dev/kfd
+            type: CharDevice
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
 {{ end }}

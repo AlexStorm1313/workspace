@@ -24,7 +24,7 @@ services:
     enabled: true
     image: localhost/core:latest
   ollama:
-    enabled: false
+    enabled: true
     image: docker.io/ollama/ollama:rocm
   opencode:
     enabled: true

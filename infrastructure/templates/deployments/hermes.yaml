@@ -30,6 +30,16 @@ spec:
           env:
             - name: HERMES_HOME
               value: /home/core/.hermes
+            - name: TELEGRAM_HOME_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-hermes
+                  key: TELEGRAM_HOME_CHAT_ID
+            - name: TELEGRAM_HOME_USER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-hermes
+                  key: TELEGRAM_HOME_USER_ID
           volumeMounts:
             - name: {{ .Release.Name }}-hermes-hermes
               mountPath: /home/core/.hermes
@@ -56,9 +66,21 @@ spec:
           env:
             - name: HERMES_HOME
               value: /home/core/.hermes
+            - name: TELEGRAM_HOME_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-hermes
+                  key: TELEGRAM_HOME_CHAT_ID
+            - name: TELEGRAM_HOME_USER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-hermes
+                  key: TELEGRAM_HOME_USER_ID
           volumeMounts:
             - name: {{ .Release.Name }}-hermes-hermes
               mountPath: /home/core/.hermes
+            - name: config.yaml
+              mountPath: /home/core/.hermes/config.yaml
           # env:
           #   - name: CONTAINER_HOST
           #     value: unix:///run/podman.sock
@@ -130,6 +152,11 @@ spec:
             path: {{ .mountPath }}
             type: Directory
         {{ end }}
+
+        - name: config.yaml
+          hostPath:
+            path: /home/core/Development/workspace/infrastructure/configs/hermes/config.yaml
+            type: File
 
         - name: podman.sock
           hostPath:
