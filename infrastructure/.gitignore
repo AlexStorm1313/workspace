@@ -21,7 +21,7 @@ Thumbs.db
 secrets/*
 !secrets/.gitkeep
 templates/secrets/*.yaml
-
+templates/secrets/hermes/hermes.yaml
 kube.yaml
 
 # Certificates
