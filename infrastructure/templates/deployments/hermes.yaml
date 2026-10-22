@@ -53,9 +53,15 @@ spec:
               mountPath: /home/core/.hermes
             - name: config.yaml
               mountPath: /home/core/.hermes/config.yaml
-            # - name: .hermes
-            #   mountPath: /home/core/.hermes/skills
-            #   subPath: skills
+            - name: auth.json
+              mountPath: /home/core/.hermes/auth.json
+            - name: .hermes
+              mountPath: /home/core/.hermes/custom_skills
+              subPath: custom_skills
+              readOnly: true
+            - name: .hermes
+              mountPath: /home/core/.hermes/improvement_skills
+              subPath: improvement_skills
 
         - name: proxy
           securityContext:
@@ -85,9 +91,15 @@ spec:
               mountPath: /home/core/.hermes
             - name: config.yaml
               mountPath: /home/core/.hermes/config.yaml
-            # - name: .hermes
-            #   mountPath: /home/core/.hermes/skills
-            #   subPath: skills
+            - name: auth.json
+              mountPath: /home/core/.hermes/auth.json
+            - name: .hermes
+              mountPath: /home/core/.hermes/custom_skills
+              subPath: custom_skills
+              readOnly: true
+            - name: .hermes
+              mountPath: /home/core/.hermes/improvement_skills
+              subPath: improvement_skills
 
           # env:
           #   - name: CONTAINER_HOST
@@ -162,6 +174,11 @@ spec:
         - name: config.yaml
           hostPath:
             path: /home/core/Development/workspace/infrastructure/configs/hermes/config.yaml
+            type: File
+
+        - name: auth.json
+          hostPath:
+            path: /home/core/Development/workspace/infrastructure/secrets/hermes/auth.json
             type: File
 
         - name: .hermes

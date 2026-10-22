@@ -48,11 +48,15 @@ providers:
       "ministral-3:8b":
         context_length: 262144
 model:
-  default: qwen3.5:9b
-  provider: ollama
-  base_url: http://workspace-ollama-pod:11434/v1
-  api_mode: chat_completions
+  default: gpt-6.1-sol
+  provider: openai-codex
+  base_url: https://chatgpt.com/backend-api/codex
+  api_mode: codex_responses
 _config_version: 51
+skills:
+  create_dir: ~/.hermes/improvement_skills
+  external_dirs:
+    - ~/.hermes/custom_skills
 model_catalog:
   excluded_providers:
     - actual
