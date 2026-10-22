@@ -28,19 +28,11 @@ moa:
 platforms:
   telegram:
     enabled: true
-    home_channel:
-      platform: telegram
-      chat_id: '${TELEGRAM_HOME_CHAT_ID}'
-      name: Alex
-      user_id: '${TELEGRAM_HOME_USER_ID}'
 dashboard:
   font: theme
   theme: default
 command_allowlist:
   - execute_code
-
-# Register the existing local route for /model provider lookup.
-# Per-model context metadata survives model-level context pin resets.
 providers:
   ollama:
     name: Ollama
@@ -56,11 +48,11 @@ providers:
       "ministral-3:8b":
         context_length: 262144
 model:
-  default: hermes3:8b
+  default: qwen3.5:9b
   provider: ollama
   base_url: http://workspace-ollama-pod:11434/v1
   api_mode: chat_completions
-_config_version: 50
+_config_version: 51
 model_catalog:
   excluded_providers:
     - actual

@@ -16,9 +16,7 @@ spec:
         app: {{ .Release.Name }}-hermes
     spec:
       {{ include "pod.securityContext" . | indent 6 }}
-      # Both containers share Hermes home below, but local discovery also validates PIDs.
       shareProcessNamespace: true
-
       containers:
         - name: gateway
           {{ include "container.securityContext" . | indent 10 }}
@@ -30,12 +28,22 @@ spec:
           env:
             - name: HERMES_HOME
               value: /home/core/.hermes
-            - name: TELEGRAM_HOME_CHAT_ID
+            - name: HERMES_HOME_MODE
+              value: 0700
+            
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-hermes
+                  key: TELEGRAM_BOT_TOKEN
+            - name: TELEGRAM_HOME_CHANNEL
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-hermes
                   key: TELEGRAM_HOME_CHAT_ID
-            - name: TELEGRAM_HOME_USER_ID
+            - name: TELEGRAM_HOME_CHANNEL_NAME
+              value: Alex
+            - name: TELEGRAM_ALLOWED_USERS
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-hermes
@@ -43,6 +51,11 @@ spec:
           volumeMounts:
             - name: {{ .Release.Name }}-hermes-hermes
               mountPath: /home/core/.hermes
+            - name: config.yaml
+              mountPath: /home/core/.hermes/config.yaml
+            # - name: .hermes
+            #   mountPath: /home/core/.hermes/skills
+            #   subPath: skills
 
         - name: proxy
           securityContext:
@@ -61,26 +74,21 @@ spec:
           image: {{ .Values.services.hermes.image }}
           imagePullPolicy: {{ .Values.deployments.containers.pullPolicy }}
           command: ["tini", "-s", "--"]
-          # Passwordless mode requires a real loopback bind. Do not set public_url.
           args: ["hermes", "dashboard", "--skip-build", "--host", "127.0.0.1", "--port", "9119", "--no-open"]
           env:
             - name: HERMES_HOME
               value: /home/core/.hermes
-            - name: TELEGRAM_HOME_CHAT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-hermes
-                  key: TELEGRAM_HOME_CHAT_ID
-            - name: TELEGRAM_HOME_USER_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-hermes
-                  key: TELEGRAM_HOME_USER_ID
+            - name: HERMES_HOME_MODE
+              value: 0700
           volumeMounts:
             - name: {{ .Release.Name }}-hermes-hermes
               mountPath: /home/core/.hermes
             - name: config.yaml
               mountPath: /home/core/.hermes/config.yaml
+            # - name: .hermes
+            #   mountPath: /home/core/.hermes/skills
+            #   subPath: skills
+
           # env:
           #   - name: CONTAINER_HOST
           #     value: unix:///run/podman.sock
@@ -122,8 +130,6 @@ spec:
         
 
       volumes:  
-        # Mount the same PVC root; pod fsGroup grants GID 0 volume access.
-        # Image dependencies must live outside this mount, not just the /opt/hermes checkout.
         - name: {{ .Release.Name }}-hermes-hermes
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-hermes-hermes
@@ -157,6 +163,11 @@ spec:
           hostPath:
             path: /home/core/Development/workspace/infrastructure/configs/hermes/config.yaml
             type: File
+
+        - name: .hermes
+          hostPath:
+            path: /home/core/Development/workspace/infrastructure/state/hermes/.hermes
+            type: Directory
 
         - name: podman.sock
           hostPath:
