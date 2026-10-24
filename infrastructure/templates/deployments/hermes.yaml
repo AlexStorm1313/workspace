@@ -53,6 +53,8 @@ spec:
               mountPath: /home/core/.hermes
             - name: config.yaml
               mountPath: /home/core/.hermes/config.yaml
+            - name: jobs.json
+              mountPath: /home/core/.hermes/cron/jobs.json
             - name: auth.json
               mountPath: /home/core/.hermes/auth.json
             - name: .hermes
@@ -91,6 +93,8 @@ spec:
               mountPath: /home/core/.hermes
             - name: config.yaml
               mountPath: /home/core/.hermes/config.yaml
+            - name: jobs.json
+              mountPath: /home/core/.hermes/cron/jobs.json
             - name: auth.json
               mountPath: /home/core/.hermes/auth.json
             - name: .hermes
@@ -174,6 +178,10 @@ spec:
         - name: config.yaml
           hostPath:
             path: /home/core/Development/workspace/infrastructure/configs/hermes/config.yaml
+            type: File
+        - name: jobs.json
+          hostPath:
+            path: /home/core/Development/workspace/infrastructure/configs/hermes/jobs.json
             type: File
 
         - name: auth.json

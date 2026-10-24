@@ -1,0 +1,117 @@
+{
+  "jobs": [
+    {
+      "id": "83432377cd7f",
+      "name": "BO3 2+ star CS2 match alerts (10 minutes before)",
+      "prompt": "Run bo3_watch.py every minute. Read https://bo3.gg/matches/current live and alert only for upcoming CS2 matches with at least 2 filled rating stars starting within 10 minutes, regardless of tournament tier. No S-tier-only restriction. Include exact match details and available direct stream links. Persist deduplication under $HERMES_HOME/data/bo3-match-alerts. Empty stdout means no message. Keep script-only no_agent execution.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": "bo3_watch.py",
+      "no_agent": true,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "interval",
+        "minutes": 1,
+        "display": "every 1m"
+      },
+      "schedule_display": "every 1m",
+      "repeat": {
+        "times": null,
+        "completed": 635
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-10-23T13:36:09.363007+00:00",
+      "next_run_at": "2026-10-24T11:12:48.596153+00:00",
+      "last_run_at": "2026-10-24T11:11:48.596153+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "last_failure": {
+        "at": "2026-10-24T08:34:56.868919+00:00",
+        "detail": "Script exited with code 1\nstderr:\nTraceback (most recent call last):\n  File \"<string>\", line 15, in <module>\n    code = compile(f.read(), script, \"exec\")\n  File \"/home/core/.hermes/scripts/bo3_watch.py\", line 79\n    finally:\n    ^^^^^^^\nSyntaxError: invalid syntax"
+      },
+      "failure_streak": 0,
+      "deliver": "telegram:5849017560",
+      "origin": {
+        "platform": "local",
+        "chat_id": "local-cfb807ecdd3be4f1fb1798d727baf6da4d9e020eafcb4c9529799e2a8f7a76d0",
+        "chat_name": null,
+        "thread_id": null,
+        "user_id": "uid:1001",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-10-24T11:10:47.564035+00:00",
+        "dispatched_at": "2026-10-24T11:11:41.736406+00:00",
+        "lateness_seconds": 54.2,
+        "kind": "on_time"
+      },
+      "fire_claim": null
+    },
+    {
+      "id": "c18d42c01933",
+      "name": "BO3 live Telegram delivery verification",
+      "prompt": "Deliver the script's live match preview once for Telegram delivery verification. Do not alter production dedupe.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": "bo3_live_delivery_check.py",
+      "no_agent": true,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "once",
+        "run_at": "2026-10-24T09:18:40.908293+00:00",
+        "display": "once at 2026-10-24 09:18"
+      },
+      "schedule_display": "once at 2026-10-24 09:18",
+      "repeat": {
+        "times": 1,
+        "completed": 1
+      },
+      "enabled": false,
+      "state": "completed",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-10-24T09:18:28.425440+00:00",
+      "next_run_at": null,
+      "last_run_at": "2026-10-24T09:19:19.440332+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "last_failure": null,
+      "failure_streak": 0,
+      "deliver": "telegram:5849017560",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "5849017560",
+        "chat_name": "Alex",
+        "thread_id": null,
+        "user_id": "5849017560",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "run_claim": null,
+      "fire_claim": null
+    }
+  ],
+  "updated_at": "2026-10-24T11:11:48.596373+00:00"
+}

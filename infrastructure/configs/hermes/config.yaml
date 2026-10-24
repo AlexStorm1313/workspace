@@ -48,10 +48,10 @@ providers:
       "ministral-3:8b":
         context_length: 262144
 model:
-  default: gpt-6.1-sol
-  provider: openai-codex
-  base_url: https://chatgpt.com/backend-api/codex
-  api_mode: codex_responses
+  default: openai-codex/gpt-6.1-sol
+  provider: ollama
+  base_url: http://workspace-ollama-pod:11434/v1
+  api_mode: chat_completions
 _config_version: 51
 skills:
   create_dir: ~/.hermes/improvement_skills
@@ -115,3 +115,5 @@ telemetry:
     enabled: false
     send: false
     offer_version: 2
+cron:
+  wrap_response: false
