@@ -41,6 +41,8 @@ spec:
               value: unix:///run/podman.sock
             - name: SSH_AUTH_SOCK
               value: /run/sshd.sock
+            - name: OPENCODE_PASSWORD
+              value: opencode
           volumeMounts:
             - name: {{ .Release.Name }}-opencode-opencode
               mountPath: /home/core/.local
