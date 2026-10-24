@@ -127,11 +127,11 @@ spec:
 
             # {{ range .Values.deployments.volumes }}
             # - name: {{ . }}
-            #   mountPath: /home/core/workspace/{{ . }}
+            #   mountPath: /home/core/{{ . }}
             # {{ end }}
             # {{ range .Values.deployments.volumeMounts }}
             # - name: {{ .name }}
-            #   mountPath: /home/core/workspace/{{ .name }}
+            #   mountPath: /home/core/{{ .name }}
             # {{ end }}
 
             # - name: sshd.sock

@@ -4,7 +4,7 @@ deployments:
     # pullPolicy: Always
   volumes:
   volumeMounts:
-    - name: development
+    - name: Development
       mountPath: /home/core/Development
 
 services:
