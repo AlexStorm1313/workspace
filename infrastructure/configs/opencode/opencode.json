@@ -1,87 +1,117 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "enabled_providers": [
-    "openai"
+  "policies": [
+    { "action": "provider.use", "resource": "*", "effect": "deny" },
+    { "action": "provider.use", "resource": "openai", "effect": "allow" }
   ],
   "model": "openai/gpt-6.1-sol",
-  "small_model": "openai/gpt-6-luna",
   "default_agent": "auto",
   "compaction": {
-    "auto": true,
-    "prune": true
+    "auto": true
   },
-  "subagent_depth": 100,
-  "agent": {
+  "experimental": {
+    "subagent_depth": 100,
+    "todo": true
+  },
+  "permissions": [
+    { "action": "external_directory", "resource": "*", "effect": "ask" }
+  ],
+  "providers": {
+    "openai": {
+      "models": {
+        "gpt-6-luna": {
+          "variants": [
+            {
+              "id": "delegation-low",
+              "settings": { "reasoningEffort": "low", "textVerbosity": "low" }
+            }
+          ]
+        },
+        "gpt-6.1-sol": {
+          "variants": [
+            {
+              "id": "delegation-medium",
+              "settings": { "reasoningEffort": "medium", "textVerbosity": "low" }
+            }
+          ]
+        },
+        "gpt-6-astra": {
+          "variants": [
+            {
+              "id": "delegation-high",
+              "settings": { "reasoningEffort": "high", "textVerbosity": "low" }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "agents": {
+    "title": {
+      "model": "openai/gpt-6-luna"
+    },
     "auto": {
       "description": "Delegation-only primary agent that routes work according to complexity, risk, and required reasoning.",
       "mode": "primary",
-      "model": "openai/gpt-6.1-sol",
-      "reasoningEffort": "medium",
-      "textVerbosity": "low",
-      "prompt": "You are the sole scheduler and integrator, and may not do implementation work yourself. Route each task to the lowest suitable capability tier: low for simple, narrow, low-risk work; medium for normal engineering work; high only for materially difficult or high-risk judgment. Keep cohesive work with one owner. When work is genuinely independent and nonoverlapping, dispatch it as parallel sibling calls in the same turn when supported. Give each worker a precise goal, constraints, ownership boundary, and verification/reporting requirements; integrate results and report. If a worker proposes escalation or additional independent work, decide and dispatch it yourself; do not repeatedly forward the whole task. Do not fragment cohesive work or create delegation chains.",
-      "permission": {
-        "*": "deny",
-        "task": {
-          "*": "deny",
-          "low-capability": "allow",
-          "medium-capability": "allow",
-          "high-capability": "allow"
-        },
-        "question": "allow"
-      }
+      "model": "openai/gpt-6.1-sol#delegation-medium",
+      "system": "You are the sole scheduler and integrator, and may not do implementation work yourself. Route each task to the lowest suitable capability tier: low for simple, narrow, low-risk work; medium for normal engineering work; high only for materially difficult or high-risk judgment. Keep cohesive work with one owner. When work is genuinely independent and nonoverlapping, dispatch it as parallel sibling calls in the same turn when supported. Give each worker a precise goal, constraints, ownership boundary, and verification/reporting requirements; integrate results and report. If a worker proposes escalation or additional independent work, decide and dispatch it yourself; do not repeatedly forward the whole task. Do not fragment cohesive work or create delegation chains.",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "low-capability", "effect": "allow" },
+        { "action": "subagent", "resource": "medium-capability", "effect": "allow" },
+        { "action": "subagent", "resource": "high-capability", "effect": "allow" },
+        { "action": "question", "resource": "*", "effect": "allow" }
+      ]
     },
     "low-capability": {
       "description": "Use for simple, mechanical, low-risk and narrowly scoped coding tasks such as formatting, renaming, boilerplate, documentation, basic searches, obvious single-file edits and targeted tests.",
       "mode": "subagent",
       "hidden": true,
-      "model": "openai/gpt-6-luna",
-      "reasoningEffort": "low",
-      "textVerbosity": "low",
+      "model": "openai/gpt-6-luna#delegation-low",
       "steps": 100,
-      "prompt": "Own and complete the assigned simple, narrow, low-risk task directly and efficiently. Inspect only relevant context, follow conventions, avoid unrelated changes, implement where appropriate, run the smallest suitable verification, and report exactly what changed, checks run, and any problems. Do not spawn agents. If other capability or independent work is needed, return a precise proposed assignment or assignments to the primary agent, including context, constraints, ownership boundaries, and expected verification/reporting.",
-      "permission": {
-        "task": "deny"
-      }
+      "system": "Own and complete the assigned simple, narrow, low-risk task directly and efficiently. Inspect only relevant context, follow conventions, avoid unrelated changes, implement where appropriate, run the smallest suitable verification, and report exactly what changed, checks run, and any problems. Do not spawn agents. If other capability or independent work is needed, return a precise proposed assignment or assignments to the primary agent, including context, constraints, ownership boundaries, and expected verification/reporting.",
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "medium-capability": {
       "description": "Use for normal feature work, debugging, refactoring, testing, and multi-file implementation.",
       "mode": "subagent",
       "hidden": true,
-      "model": "openai/gpt-6.1-sol",
-      "reasoningEffort": "medium",
-      "textVerbosity": "low",
+      "model": "openai/gpt-6.1-sol#delegation-medium",
       "steps": 100,
-      "prompt": "Own and complete the assigned normal engineering task end-to-end. Inspect relevant code and conventions, identify requirements or cause, implement a focused solution, run appropriate verification, and report changes, evidence, risks, and remaining concerns. Do not spawn agents. If higher capability or independent work is needed, return precise proposed assignments to the primary agent, with context, constraints, ownership boundaries, and expected verification/reporting.",
-      "permission": {
-        "task": "deny"
-      }
+      "system": "Own and complete the assigned normal engineering task end-to-end. Inspect relevant code and conventions, identify requirements or cause, implement a focused solution, run appropriate verification, and report changes, evidence, risks, and remaining concerns. Do not spawn agents. If higher capability or independent work is needed, return precise proposed assignments to the primary agent, with context, constraints, ownership boundaries, and expected verification/reporting.",
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     },
     "high-capability": {
       "description": "Use for exceptionally difficult coding tasks involving architecture, ambiguous debugging, security analysis, concurrency, distributed systems, complex migrations, major refactors, or unfamiliar large codebases.",
       "mode": "subagent",
       "hidden": true,
-      "model": "openai/gpt-6-astra",
-      "reasoningEffort": "high",
-      "textVerbosity": "low",
+      "model": "openai/gpt-6-astra#delegation-high",
       "steps": 100,
-      "prompt": "Own and solve the assigned exceptionally difficult or high-risk engineering task thoroughly. Inspect relevant architecture and conventions, identify root causes and tradeoffs, implement a focused solution, run appropriate tests or checks, and report reasoning, modifications, evidence, risks, and uncertainties. Do not spawn agents. If other capability or independent work is needed, return precise proposed assignments to the primary agent, including context, constraints, ownership boundaries, and expected verification/reporting.",
-      "permission": {
-        "task": "deny"
-      }
+      "system": "Own and solve the assigned exceptionally difficult or high-risk engineering task thoroughly. Inspect relevant architecture and conventions, identify root causes and tradeoffs, implement a focused solution, run appropriate tests or checks, and report reasoning, modifications, evidence, risks, and uncertainties. Do not spawn agents. If other capability or independent work is needed, return precise proposed assignments to the primary agent, including context, constraints, ownership boundaries, and expected verification/reporting.",
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
     }
   },
   "mcp": {
-    "chrome-devtools": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "chrome-devtools-mcp@latest",
-        "--browser-url=http://workspace-chromium-pod:9223",
-        "--no-usage-statistics",
-        "--experimental-devtools",
-        "--category-experimental-webmcp"
-      ]
+    "servers": {
+      "chrome-devtools": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "chrome-devtools-mcp@latest",
+          "--browser-url=http://workspace-chromium-pod:9223",
+          "--no-usage-statistics",
+          "--experimental-devtools",
+          "--category-experimental-webmcp"
+        ]
+      }
     }
   }
 }
