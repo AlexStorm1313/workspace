@@ -42,7 +42,7 @@ certificate:
 	@mkdir -p ./infrastructure/secrets/gateway
 	@umask 077; podman run --rm \
 	-v ./infrastructure/secrets/gateway:/certs:Z \
-	docker.io/alpine/openssl:latest req -x509 -noenc -sha256 -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost,DNS:*.workspace.localhost"
+	docker.io/alpine/openssl:latest req -x509 -noenc -sha256 -days 365 -newkey rsa:2048 -keyout /certs/tls.key -out /certs/tls.crt -subj "/C=US/ST=workspace/L=workspace/O=workspace/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost,DNS:*.workspace.localhost,DNS:alexbrasser.com,DNS:*.alexbrasser.com,DNS:*.workspace.alexbrasser.com"
 
 # Generate a locally trusted TLS certificate and trust its CA in Ungoogled Chromium.
 # Restart Chromium after running this target to load the updated NSS database.
@@ -54,7 +54,7 @@ mkcert:
 		-e CAROOT=/mkcert-data/mkcert \
 		--entrypoint sh docker.io/alpine/mkcert:latest -ec '\
 			mkdir -p /mkcert-data/mkcert /chromium-data/data/pki/nssdb; \
-			mkcert -cert-file /certs/tls.crt -key-file /certs/tls.key localhost "*.localhost" "*.workspace.localhost"; \
+			mkcert -cert-file /certs/tls.crt -key-file /certs/tls.key localhost "*.localhost" "*.workspace.localhost" alexbrasser.com "*.alexbrasser.com" "*.workspace.alexbrasser.com"; \
 			if [ ! -f /chromium-data/data/pki/nssdb/cert9.db ]; then certutil -d sql:/chromium-data/data/pki/nssdb -N --empty-password; fi; \
 			certutil -d sql:/chromium-data/data/pki/nssdb -D -n "mkcert local development CA" 2>/dev/null || true; \
 			certutil -d sql:/chromium-data/data/pki/nssdb -A -n "mkcert local development CA" -t "C,," -i /mkcert-data/mkcert/rootCA.pem'
