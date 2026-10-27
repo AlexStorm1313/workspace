@@ -1,7 +1,7 @@
 server {
     include /etc/nginx/includes/listen.conf;
 
-    server_name hermes.workspace.localhost;
+    server_name hermes.workspace.localhost hermes.workspace.alexbrasser.com;
 
     # Do not persist session tokens from WS/download query strings.
     access_log off;
