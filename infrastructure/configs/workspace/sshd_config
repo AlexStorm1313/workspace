@@ -5,20 +5,18 @@ HostKey /etc/ssh/id_ed25519
 AuthorizedKeysFile /etc/ssh/authorized_keys
 PidFile /tmp/sshd.pid
 Subsystem sftp /usr/libexec/openssh/sftp-server
+SetEnv CONTAINER_HOST=unix:///run/podman.sock HOME=/home/core SHELL=/bin/bash SSH_AUTH_SOCK=/run/sshd.sock PATH=/home/core/.cargo/bin:/home/core/.bun/bin:/home/core/.local/bin:/usr/local/bin:/usr/bin
+LogLevel VERBOSE
+
+AllowUsers core
 AuthenticationMethods publickey
 PasswordAuthentication no
 KbdInteractiveAuthentication no
-PermitEmptyPasswords no
 PermitRootLogin no
-StrictModes yes
-AllowUsers core
-Compression no
+UsePAM no
+
 AllowAgentForwarding no
-AllowTcpForwarding no
+AllowTcpForwarding yes
 GatewayPorts no
 X11Forwarding no
-PermitUserEnvironment no
-SetEnv CONTAINER_HOST=unix:///run/podman.sock HOME=/home/core SHELL=/bin/bash SSH_AUTH_SOCK=/run/sshd.sock PATH=/home/core/.cargo/bin:/home/core/.bun/bin:/home/core/.local/bin:/usr/local/bin:/usr/bin
-UsePAM no
-UseDNS no
-LogLevel VERBOSE
+Compression no
