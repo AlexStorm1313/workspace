@@ -33,6 +33,7 @@ dashboard:
   theme: default
 command_allowlist:
   - execute_code
+  - script execution via -e/-c flag
 providers:
   ollama:
     name: Ollama
@@ -48,10 +49,10 @@ providers:
       "ministral-3:8b":
         context_length: 262144
 model:
-  default: openai-codex/gpt-6.1-sol
-  provider: ollama
-  base_url: http://workspace-ollama-pod:11434/v1
-  api_mode: chat_completions
+  default: gpt-6.1-sol
+  provider: openai-codex
+  base_url: https://chatgpt.com/backend-api/codex
+  api_mode: codex_responses
 _config_version: 51
 skills:
   create_dir: ~/.hermes/improvement_skills
