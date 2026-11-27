@@ -92,6 +92,14 @@ RUN --mount=type=cache,id=core-bun-user,target=/var/cache/bun,uid=${UID},gid=${G
     BUN_INSTALL_CACHE_DIR=/var/cache/bun bun install -g --trust @opencode/cli && \
     chmod -R g=u "${HOME}/.bun/install/global"
 
+# Install additional coding agents into the runtime user's home.
+RUN umask 0002 && \
+    bash -o pipefail -c 'curl -fsSL https://t3.codes/install.sh | sh'
+RUN umask 0002 && \
+    bash -o pipefail -c 'curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh'
+RUN umask 0002 && \
+    bash -o pipefail -c 'curl -fsSL https://claude.ai/install.sh | bash'
+
 # Install shared agent skills without interactive prompts.
 RUN umask 0002 && npx --yes skills add juliobsz/skills --global --agent universal --skill '*' --yes
 RUN umask 0002 && npx --yes skills add payloadcms/skills --global --agent universal --skill '*' --yes
